@@ -1,0 +1,16 @@
+{
+  "name": "quranai-workspace",
+  "version": "2.0.0",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev:web": "pnpm --filter @quranai/web dev",
+    "dev:app": "pnpm --filter @quranai/mobile start",
+    "build": "pnpm -r --if-present run build",
+    "typecheck": "pnpm -r --if-present run typecheck"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.2",
+    "prettier": "^3.8.1"
+  }
+}
