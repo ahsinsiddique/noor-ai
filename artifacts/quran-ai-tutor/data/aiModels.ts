@@ -111,8 +111,8 @@ export const AI_PROVIDERS: AIProvider[] = [
   },
 ];
 
-export const DEFAULT_PROVIDER: ProviderId = "openai";
-export const DEFAULT_MODEL_ID = "gpt-4.1";
+export const DEFAULT_PROVIDER: ProviderId = "ollama";
+export const DEFAULT_MODEL_ID = "gpt-oss:20b";
 
 export function getProvider(id: ProviderId): AIProvider {
   return AI_PROVIDERS.find((p) => p.id === id) ?? AI_PROVIDERS[0];

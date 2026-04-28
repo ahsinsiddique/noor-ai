@@ -50,6 +50,32 @@ export function apiUrl(path: string): string {
   return `${base}${slash}${path}`;
 }
 
+export function getOllamaUrl(path: string): string {
+  // Allow explicit override
+  if (process.env.EXPO_PUBLIC_OLLAMA_URL) {
+    const base = process.env.EXPO_PUBLIC_OLLAMA_URL.replace(/\/+$/, "");
+    return `${base}${path.startsWith('/') ? '' : '/'}${path}`;
+  }
+
+  // Derive from Next.js backend URL to ensure mobile devices hit the Mac host
+  // e.g. "http://192.168.1.42:3000" -> "http://192.168.1.42:11434"
+  const base = getBaseUrl();
+  const androidUrl = "http://10.0.2.2:11434";
+  const androidUrl2 = "http://192.168.110.188:11434";
+
+
+  let origin = Platform.OS === 'android' ? androidUrl2 : "http://localhost:11434"; // fallback
+
+  if (base) {
+    const match = base.match(/^(https?:\/\/[^:/]+)(:\d+)?/);
+    if (match) {
+      origin = `${match[1]}:11434`;
+    }
+  }
+
+  return `${origin}${path.startsWith('/') ? '' : '/'}${path}`;
+}
+
 export async function apiFetch(
   path: string,
   init: RequestInit = {},

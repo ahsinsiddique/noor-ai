@@ -1,6 +1,6 @@
 import { fetch as expoFetch } from "expo/fetch";
 
-import { apiUrl } from "@/services/apiClient";
+import { apiUrl, getOllamaUrl } from "@/services/apiClient";
 import { getAccessToken } from "@/lib/supabase";
 
 export type LearningLevel = "Beginner" | "Intermediate" | "Advanced";
@@ -78,7 +78,52 @@ export function buildChatMessages(
   ];
 }
 
-// ─── Shared SSE stream reader ─────────────────────────────────────────────────
+// ─── Shared SSE & NDJSON stream readers ───────────────────────────────────────
+//
+// NOTE: we use `expo/fetch` here (not the global fetch) because it reliably
+// supports ReadableStream response bodies on native. The regular `fetch`
+// polyfill on some RN versions buffers the whole response before returning,
+// which would defeat the whole point of streaming.
+
+async function readOllamaStream(
+  response: Response,
+  onChunk: (text: string) => void,
+): Promise<void> {
+  if (!response.ok) {
+    throw new Error(`Ollama error: ${response.status}`);
+  }
+
+  const reader = (response.body as ReadableStream<Uint8Array>).getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      try {
+        const parsed = JSON.parse(line);
+        if (parsed.error) throw new Error(parsed.error);
+        
+        if (parsed.message?.content) {
+          onChunk(parsed.message.content);
+        } else if (parsed.response) {
+          onChunk(parsed.response);
+        }
+      } catch (err) {
+        if (err instanceof Error && err.message && !err.message.startsWith("Unexpected")) {
+          throw err;
+        }
+      }
+    }
+  }
+}
 //
 // NOTE: we use `expo/fetch` here (not the global fetch) because it reliably
 // supports ReadableStream response bodies on native. The regular `fetch`
@@ -167,6 +212,28 @@ export async function streamChat(
   signal?: AbortSignal,
 ): Promise<void> {
   const { message, context, teacherPrompt, history, identity } = params;
+
+  if (identity?.provider === "ollama") {
+    const messages = buildChatMessages(message, context, history);
+    if (teacherPrompt && messages[0].role === "system") {
+      messages[0].content = `${teacherPrompt}\n\n${messages[0].content}`;
+    }
+
+    const response = await expoFetch(getOllamaUrl("/api/chat"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: identity?.model || "gpt-oss:20b",
+        messages,
+        stream: true,
+      }),
+      signal,
+    });
+    
+    await readOllamaStream(response as unknown as Response, onChunk);
+    return;
+  }
+
   await streamSsePost(
     "/api/quran/chat",
     {
@@ -202,6 +269,33 @@ export async function streamGuardianChat(
   signal?: AbortSignal,
 ): Promise<void> {
   const { message, history, identity } = params;
+
+  if (identity?.provider === "ollama") {
+    const { sect, madhhab, subSchool } = identity;
+    const sectDetails = [sect, madhhab, subSchool].filter(Boolean).join(", ");
+    const systemPrompt = `You are a knowledgeable Islamic scholar. Provide general guidance${sectDetails ? ` adhering to ${sectDetails} perspectives` : ""}. Keep responses concise, warm, and avoid fatwas.`;
+    
+    const messages = [
+      { role: "system", content: systemPrompt },
+      ...history,
+      { role: "user", content: message },
+    ];
+
+    const response = await expoFetch(getOllamaUrl("/api/chat"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: identity?.model || "gpt-oss:20b",
+        messages,
+        stream: true,
+      }),
+      signal,
+    });
+    
+    await readOllamaStream(response as unknown as Response, onChunk);
+    return;
+  }
+
   await streamSsePost(
     "/api/quran/chat",
     {
@@ -225,6 +319,23 @@ export async function generateSummary(
   messages: ChatMessage[],
   identity?: AIIdentity,
 ): Promise<string> {
+  if (identity?.provider === "ollama") {
+    const prompt = PROMPTS.sessionSummary(messages);
+    const response = await fetch(getOllamaUrl("/api/generate"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: identity?.model || "gpt-oss:20b",
+        prompt,
+        stream: false,
+      }),
+    });
+
+    if (!response.ok) throw new Error("Failed to generate summary via Ollama");
+    const data = await response.json() as { response: string };
+    return data.response ?? "Session completed.";
+  }
+
   const token = await getAccessToken();
   const response = await fetch(apiUrl("/api/quran/summarize"), {
     method: "POST",
@@ -287,6 +398,23 @@ export async function getQuizExplanation(
   surahName: string,
   identity?: AIIdentity,
 ): Promise<string> {
+  if (identity?.provider === "ollama") {
+    const prompt = PROMPTS.quizExplanation(question, correctAnswer, surahName);
+    const response = await fetch(getOllamaUrl("/api/generate"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: identity?.model || "gpt-oss:20b",
+        prompt,
+        stream: false,
+      }),
+    });
+
+    if (!response.ok) throw new Error("Failed to get explanation via Ollama");
+    const data = await response.json() as { response: string };
+    return data.response ?? "";
+  }
+
   const token = await getAccessToken();
   const response = await fetch(apiUrl("/api/quran/explain"), {
     method: "POST",
