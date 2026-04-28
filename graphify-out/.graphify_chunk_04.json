@@ -1,0 +1,245 @@
+{
+  "nodes": [
+    {
+      "id": "file:artifacts/quran-ai-tutor/assets/images/icon.png",
+      "label": "icon.png",
+      "type": "image_asset",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/icon.png",
+      "description": "PNG image asset measuring 1408 x 768 with RGBA color data."
+    },
+    {
+      "id": "brand:noor-ai",
+      "label": "Noor Ai",
+      "type": "brand_identity",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/icon.png",
+      "description": "Brand name shown in large text near the bottom of the image."
+    },
+    {
+      "id": "text:guiding-intelligence-empowering-humanity",
+      "label": "Guiding Intelligence. Empowering Humanity.",
+      "type": "tagline",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/icon.png",
+      "description": "Tagline displayed beneath the Noor Ai brand name."
+    },
+    {
+      "id": "concept:ai-intelligence",
+      "label": "AI intelligence",
+      "type": "concept",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/icon.png",
+      "description": "Represented visually by a turquoise circuit-brain motif and by the 'Ai' wordmark."
+    },
+    {
+      "id": "concept:spiritual-guidance",
+      "label": "spiritual guidance",
+      "type": "concept",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/icon.png",
+      "description": "Suggested by the gold profile, radiant light, crown/starburst, and Islamic geometric ornamentation."
+    },
+    {
+      "id": "visual:gold-human-profile",
+      "label": "gold human profile",
+      "type": "visual_element",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/icon.png",
+      "description": "Left half of the central mark shows a gold human head profile."
+    },
+    {
+      "id": "visual:turquoise-circuit-brain",
+      "label": "turquoise circuit brain",
+      "type": "visual_element",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/icon.png",
+      "description": "Right half of the central mark shows a brain outline filled with circuit nodes and connecting traces."
+    },
+    {
+      "id": "visual:radiant-light-starburst",
+      "label": "radiant light and starburst",
+      "type": "visual_element",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/icon.png",
+      "description": "A bright gold glow and turquoise starburst appear above the combined head and brain mark."
+    },
+    {
+      "id": "visual:islamic-geometric-border",
+      "label": "Islamic geometric border",
+      "type": "visual_element",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/icon.png",
+      "description": "Pale geometric linework frames the left and right sides of the image."
+    },
+    {
+      "id": "palette:gold-and-turquoise",
+      "label": "gold and turquoise palette",
+      "type": "visual_style",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/icon.png",
+      "description": "The image pairs gold tones for the human/spiritual side with turquoise tones for the AI/circuit side."
+    },
+    {
+      "id": "app:quran-ai-tutor",
+      "label": "quran-ai-tutor",
+      "type": "application",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/icon.png",
+      "description": "Application context indicated by the image asset path."
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:artifacts/quran-ai-tutor/assets/images/icon.png",
+      "target": "brand:noor-ai",
+      "type": "contains_brand_text",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "evidence": "The image displays the large wordmark 'Noor Ai'."
+    },
+    {
+      "source": "file:artifacts/quran-ai-tutor/assets/images/icon.png",
+      "target": "text:guiding-intelligence-empowering-humanity",
+      "type": "contains_tagline",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "evidence": "The tagline appears directly beneath the brand name."
+    },
+    {
+      "source": "file:artifacts/quran-ai-tutor/assets/images/icon.png",
+      "target": "visual:gold-human-profile",
+      "type": "contains_visual_element",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "evidence": "A gold human head profile is visible in the central logo mark."
+    },
+    {
+      "source": "file:artifacts/quran-ai-tutor/assets/images/icon.png",
+      "target": "visual:turquoise-circuit-brain",
+      "type": "contains_visual_element",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "evidence": "A turquoise brain outline with circuit nodes and traces is visible in the central logo mark."
+    },
+    {
+      "source": "file:artifacts/quran-ai-tutor/assets/images/icon.png",
+      "target": "visual:radiant-light-starburst",
+      "type": "contains_visual_element",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "evidence": "A glowing light and starburst sit above the head-and-brain symbol."
+    },
+    {
+      "source": "file:artifacts/quran-ai-tutor/assets/images/icon.png",
+      "target": "visual:islamic-geometric-border",
+      "type": "contains_visual_element",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "evidence": "Pale geometric linework frames both sides of the image."
+    },
+    {
+      "source": "visual:gold-human-profile",
+      "target": "concept:spiritual-guidance",
+      "type": "rationale_for",
+      "provenance": "INFERRED",
+      "confidence_score": 0.78,
+      "evidence": "The gold profile combines with radiant light and ornamental geometry, a visual vocabulary commonly used for reverence and guidance."
+    },
+    {
+      "source": "visual:turquoise-circuit-brain",
+      "target": "concept:ai-intelligence",
+      "type": "rationale_for",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "evidence": "Circuit nodes and traces are integrated into a brain shape, explicitly signaling computational intelligence."
+    },
+    {
+      "source": "brand:noor-ai",
+      "target": "concept:spiritual-guidance",
+      "type": "rationale_for",
+      "provenance": "INFERRED",
+      "confidence_score": 0.72,
+      "evidence": "The word 'Noor' means light in Arabic and aligns with the visual glow and Islamic geometric styling."
+    },
+    {
+      "source": "text:guiding-intelligence-empowering-humanity",
+      "target": "concept:ai-intelligence",
+      "type": "rationale_for",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "evidence": "The tagline explicitly uses the word 'Intelligence'."
+    },
+    {
+      "source": "text:guiding-intelligence-empowering-humanity",
+      "target": "concept:spiritual-guidance",
+      "type": "rationale_for",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "evidence": "The tagline explicitly uses the word 'Guiding'."
+    },
+    {
+      "source": "palette:gold-and-turquoise",
+      "target": "brand:noor-ai",
+      "type": "supports_brand_identity",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "evidence": "Gold is used for 'Noor' and turquoise is used for 'Ai', matching the central split symbol."
+    },
+    {
+      "source": "file:artifacts/quran-ai-tutor/assets/images/icon.png",
+      "target": "app:quran-ai-tutor",
+      "type": "asset_for",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "evidence": "The image path places the asset under artifacts/quran-ai-tutor/assets/images/."
+    },
+    {
+      "source": "app:quran-ai-tutor",
+      "target": "brand:noor-ai",
+      "type": "uses_brand_identity",
+      "provenance": "INFERRED",
+      "confidence_score": 0.7,
+      "evidence": "The quran-ai-tutor asset directory contains an icon whose visible brand identity is Noor Ai."
+    },
+    {
+      "source": "visual:islamic-geometric-border",
+      "target": "app:quran-ai-tutor",
+      "type": "rationale_for",
+      "provenance": "INFERRED",
+      "confidence_score": 0.68,
+      "evidence": "The Islamic geometric framing visually aligns the icon with the Quran tutoring application context indicated by the path."
+    },
+    {
+      "source": "visual:gold-human-profile",
+      "target": "visual:turquoise-circuit-brain",
+      "type": "merged_with",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "evidence": "The profile and circuit brain form two halves of one central head-shaped logo mark."
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "hyperedge:noor-ai-brand-system",
+      "type": "brand_system",
+      "nodes": [
+        "brand:noor-ai",
+        "text:guiding-intelligence-empowering-humanity",
+        "palette:gold-and-turquoise",
+        "visual:gold-human-profile",
+        "visual:turquoise-circuit-brain",
+        "visual:radiant-light-starburst"
+      ],
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "rationale": "The wordmark, tagline, color palette, and central symbolic mark are presented together as one cohesive brand icon."
+    },
+    {
+      "id": "hyperedge:faith-and-ai-synthesis",
+      "type": "design_intent",
+      "nodes": [
+        "concept:spiritual-guidance",
+        "concept:ai-intelligence",
+        "visual:islamic-geometric-border",
+        "visual:gold-human-profile",
+        "visual:turquoise-circuit-brain",
+        "app:quran-ai-tutor"
+      ],
+      "provenance": "INFERRED",
+      "confidence_score": 0.74,
+      "rationale": "The icon combines Islamic visual motifs, light/guidance symbolism, and AI circuitry in an asset path for a Quran AI tutor."
+    }
+  ],
+  "input_tokens": 420,
+  "output_tokens": 2570
+}

@@ -11,7 +11,7 @@
 
 import OpenAI from "openai";
 
-export type ProviderId = "openai" | "xai";
+export type ProviderId = "openai" | "xai" | "sou" | "ollama";
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -30,6 +30,8 @@ export interface StreamParams {
 
 let _openai: OpenAI | null = null;
 let _xai: OpenAI | null = null;
+let _sou: OpenAI | null = null;
+let _ollama: OpenAI | null = null;
 
 function getOpenAI(): OpenAI {
   if (_openai) return _openai;
@@ -47,11 +49,28 @@ function getXai(): OpenAI {
   return _xai;
 }
 
+function getSou(): OpenAI {
+  if (_sou) return _sou;
+  const apiKey = process.env.SOU_IMAGERY_API_KEY;
+  if (!apiKey) throw new Error("SOU_IMAGERY_API_KEY is not configured");
+  _sou = new OpenAI({ apiKey, baseURL: "https://api.souimagery.fun/v1" });
+  return _sou;
+}
+
+function getOllama(): OpenAI {
+  if (_ollama) return _ollama;
+  // Ollama provides local, unauthenticated OpenAI API compat layer at /v1.
+  _ollama = new OpenAI({ apiKey: "ollama", baseURL: "http://localhost:11434/v1" });
+  return _ollama;
+}
+
 // ─── Default models per provider ─────────────────────────────────────────────
 
 export const DEFAULT_MODELS: Record<ProviderId, string> = {
   openai: "gpt-4.1",
   xai: "grok-4-latest",
+  sou: "gpt-5.4",
+  ollama: "gpt-oss:20b",
 };
 
 // ─── Unified streaming helper ────────────────────────────────────────────────
@@ -65,7 +84,7 @@ export async function* streamCompletion(
   params: StreamParams,
 ): AsyncGenerator<StreamChunk> {
   const { provider, model, messages, maxTokens = 1024, temperature } = params;
-  const client = provider === "xai" ? getXai() : getOpenAI();
+  const client = provider === "xai" ? getXai() : provider === "sou" ? getSou() : provider === "ollama" ? getOllama() : getOpenAI();
 
   const stream = await client.chat.completions.create({
     model,
@@ -88,7 +107,7 @@ export async function* streamCompletion(
 
 export async function completion(params: StreamParams): Promise<string> {
   const { provider, model, messages, maxTokens = 256, temperature } = params;
-  const client = provider === "xai" ? getXai() : getOpenAI();
+  const client = provider === "xai" ? getXai() : provider === "sou" ? getSou() : provider === "ollama" ? getOllama() : getOpenAI();
 
   const response = await client.chat.completions.create({
     model,
@@ -103,6 +122,8 @@ export async function completion(params: StreamParams): Promise<string> {
 
 export function normaliseProvider(raw: unknown): ProviderId {
   if (raw === "xai" || raw === "grok") return "xai";
+  if (raw === "sou") return "sou";
+  if (raw === "ollama") return "ollama";
   return "openai";
 }
 

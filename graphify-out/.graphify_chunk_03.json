@@ -1,0 +1,740 @@
+{
+  "nodes": [
+    {
+      "id": "chunk03_error_boundary_recovery",
+      "label": "Error boundary recovery flow",
+      "type": "concept",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/components/ErrorBoundary.tsx",
+      "source_location": "L12"
+    },
+    {
+      "id": "chunk03_error_fallback_ui",
+      "label": "ErrorFallback recovery UI",
+      "type": "component",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/components/ErrorFallback.tsx",
+      "source_location": "L22"
+    },
+    {
+      "id": "chunk03_developer_error_details",
+      "label": "Developer-only error details modal",
+      "type": "concept",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/components/ErrorFallback.tsx",
+      "source_location": "L43"
+    },
+    {
+      "id": "chunk03_theme_color_tokens",
+      "label": "Resolved theme color tokens",
+      "type": "concept",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/hooks/useColors.ts",
+      "source_location": "L8"
+    },
+    {
+      "id": "chunk03_scholar_avatar_state_machine",
+      "label": "ScholarAvatar state-driven animations",
+      "type": "component",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/components/ScholarAvatar.tsx",
+      "source_location": "L53"
+    },
+    {
+      "id": "chunk03_noor_teacher_presence_design",
+      "label": "Noor teacher-present avatar design intent",
+      "type": "rationale",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/components/ScholarAvatar.tsx",
+      "source_location": "L14"
+    },
+    {
+      "id": "chunk03_tts_boundary_pulse",
+      "label": "TTS boundary pulse helper",
+      "type": "concept",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/components/ScholarAvatar.tsx",
+      "source_location": "L293"
+    },
+    {
+      "id": "chunk03_voice_recording_state_machine",
+      "label": "VoiceRecorder recording/transcribing state machine",
+      "type": "component",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/components/VoiceRecorder.tsx",
+      "source_location": "L27"
+    },
+    {
+      "id": "chunk03_platform_audio_capture",
+      "label": "Platform-specific audio capture",
+      "type": "concept",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/components/VoiceRecorder.tsx",
+      "source_location": "L93"
+    },
+    {
+      "id": "chunk03_transcription_endpoint",
+      "label": "Authenticated Quran transcription endpoint",
+      "type": "api_endpoint",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/components/VoiceRecorder.tsx",
+      "source_location": "L70"
+    },
+    {
+      "id": "chunk03_supabase_session_auth",
+      "label": "Supabase session auth",
+      "type": "service",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/lib/supabase.ts",
+      "source_location": "L33"
+    },
+    {
+      "id": "chunk03_access_token_provider",
+      "label": "Current access token provider",
+      "type": "function",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/lib/supabase.ts",
+      "source_location": "L49"
+    },
+    {
+      "id": "chunk03_api_url_resolution",
+      "label": "Backend API URL resolution",
+      "type": "service",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/services/apiClient.ts",
+      "source_location": "L29"
+    },
+    {
+      "id": "chunk03_authenticated_api_fetch",
+      "label": "Authenticated API fetch wrapper",
+      "type": "service",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/services/apiClient.ts",
+      "source_location": "L53"
+    },
+    {
+      "id": "chunk03_surah_picker_modal",
+      "label": "SurahPickerModal searchable selector",
+      "type": "component",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/components/SurahPickerModal.tsx",
+      "source_location": "L26"
+    },
+    {
+      "id": "chunk03_quran_api_public_read_model",
+      "label": "Public Quran API read model",
+      "type": "service",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/services/quranApi.ts",
+      "source_location": "L31"
+    },
+    {
+      "id": "chunk03_surah_metadata_cache",
+      "label": "React Query surah and ayah cache",
+      "type": "concept",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/services/quranApi.ts",
+      "source_location": "L53"
+    },
+    {
+      "id": "chunk03_static_quran_learning_content",
+      "label": "Static Quran learning content",
+      "type": "dataset",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/data/quran.ts",
+      "source_location": "L17"
+    },
+    {
+      "id": "chunk03_quiz_question_bank",
+      "label": "Quran quiz question bank",
+      "type": "dataset",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/data/quran.ts",
+      "source_location": "L104"
+    },
+    {
+      "id": "chunk03_teacher_persona_catalog",
+      "label": "Teacher persona catalog",
+      "type": "dataset",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/data/teachers.ts",
+      "source_location": "L15"
+    },
+    {
+      "id": "chunk03_islamic_answer_guardrails",
+      "label": "Islamic answer guardrails",
+      "type": "concept",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/data/teachers.ts",
+      "source_location": "L27"
+    },
+    {
+      "id": "chunk03_ai_provider_catalog",
+      "label": "AI provider and model catalog",
+      "type": "dataset",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/data/aiModels.ts",
+      "source_location": "L31"
+    },
+    {
+      "id": "chunk03_default_openai_model",
+      "label": "Default OpenAI GPT-4.1 model choice",
+      "type": "configuration",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/data/aiModels.ts",
+      "source_location": "L114"
+    },
+    {
+      "id": "chunk03_revelation_order_sorting",
+      "label": "Revelation order sorting",
+      "type": "algorithm",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/data/revelationOrder.ts",
+      "source_location": "L16"
+    },
+    {
+      "id": "chunk03_prayer_times_hook",
+      "label": "Prayer times hook",
+      "type": "hook",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/hooks/usePrayerTimes.ts",
+      "source_location": "L66"
+    },
+    {
+      "id": "chunk03_prayer_times_cache",
+      "label": "Six-hour prayer times cache",
+      "type": "concept",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/hooks/usePrayerTimes.ts",
+      "source_location": "L41"
+    },
+    {
+      "id": "chunk03_aladhan_prayer_service",
+      "label": "Aladhan prayer timings service",
+      "type": "external_service",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/hooks/usePrayerTimes.ts",
+      "source_location": "L119"
+    },
+    {
+      "id": "chunk03_ai_chat_streaming_service",
+      "label": "Quran AI chat streaming service",
+      "type": "service",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/services/aiService.ts",
+      "source_location": "L158"
+    },
+    {
+      "id": "chunk03_sse_stream_reader",
+      "label": "SSE stream reader",
+      "type": "function",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/services/aiService.ts",
+      "source_location": "L88"
+    },
+    {
+      "id": "chunk03_client_prompt_templates",
+      "label": "Client-side Quran prompt templates",
+      "type": "configuration",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/services/aiService.ts",
+      "source_location": "L32"
+    },
+    {
+      "id": "chunk03_guardian_mode_chat",
+      "label": "Guardian mode chat",
+      "type": "feature",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/services/aiService.ts",
+      "source_location": "L195"
+    },
+    {
+      "id": "chunk03_tts_language_detection",
+      "label": "TTS language detection",
+      "type": "algorithm",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/services/aiService.ts",
+      "source_location": "L251"
+    },
+    {
+      "id": "chunk03_static_expo_build_pipeline",
+      "label": "Static Expo Go deployment pipeline",
+      "type": "script",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/scripts/build.js",
+      "source_location": "L508"
+    },
+    {
+      "id": "chunk03_metro_bundle_generation",
+      "label": "Metro bundle generation and health checks",
+      "type": "concept",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/scripts/build.js",
+      "source_location": "L130"
+    },
+    {
+      "id": "chunk03_static_asset_rewriting",
+      "label": "Static asset extraction and URL rewriting",
+      "type": "concept",
+      "file_type": "code",
+      "source_file": "artifacts/quran-ai-tutor/scripts/build.js",
+      "source_location": "L307"
+    },
+    {
+      "id": "chunk03_expo_go_landing_page",
+      "label": "Expo Go landing page template",
+      "type": "document",
+      "file_type": "doc",
+      "source_file": "artifacts/quran-ai-tutor/server/templates/landing-page.html",
+      "source_location": "L1"
+    },
+    {
+      "id": "chunk03_qr_deeplink_bootstrap",
+      "label": "QR and deep-link bootstrap",
+      "type": "feature",
+      "file_type": "doc",
+      "source_file": "artifacts/quran-ai-tutor/server/templates/landing-page.html",
+      "source_location": "L399"
+    }
+  ],
+  "edges": [
+    {
+      "source": "chunk03_error_boundary_recovery",
+      "target": "chunk03_error_fallback_ui",
+      "relation": "renders_fallback_for_caught_errors",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/components/ErrorBoundary.tsx",
+      "source_location": "L35"
+    },
+    {
+      "source": "chunk03_error_boundary_recovery",
+      "target": "chunk03_developer_error_details",
+      "relation": "separates_user_recovery_from_developer_diagnostics",
+      "confidence": "INFERRED",
+      "confidence_score": 0.72,
+      "source_file": "artifacts/quran-ai-tutor/components/ErrorFallback.tsx",
+      "source_location": "L43"
+    },
+    {
+      "source": "chunk03_error_fallback_ui",
+      "target": "chunk03_theme_color_tokens",
+      "relation": "styles_with_resolved_theme_tokens",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/components/ErrorFallback.tsx",
+      "source_location": "L23"
+    },
+    {
+      "source": "chunk03_developer_error_details",
+      "target": "chunk03_error_fallback_ui",
+      "relation": "is_visible_only_in_dev_mode",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/components/ErrorFallback.tsx",
+      "source_location": "L43"
+    },
+    {
+      "source": "chunk03_theme_color_tokens",
+      "target": "chunk03_error_fallback_ui",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.64,
+      "rationale": "Theme tokens act as a cross-cutting presentation layer used by recovery, selection, voice, and avatar surfaces.",
+      "source_file": "artifacts/quran-ai-tutor/hooks/useColors.ts",
+      "source_location": "L3"
+    },
+    {
+      "source": "chunk03_scholar_avatar_state_machine",
+      "target": "chunk03_noor_teacher_presence_design",
+      "relation": "implements_design_intent",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/components/ScholarAvatar.tsx",
+      "source_location": "L14"
+    },
+    {
+      "source": "chunk03_scholar_avatar_state_machine",
+      "target": "chunk03_tts_boundary_pulse",
+      "relation": "offers_future_word_level_speech_sync",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/components/ScholarAvatar.tsx",
+      "source_location": "L281"
+    },
+    {
+      "source": "chunk03_scholar_avatar_state_machine",
+      "target": "chunk03_theme_color_tokens",
+      "relation": "uses_theme_for_ring_glow_and_frame",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/components/ScholarAvatar.tsx",
+      "source_location": "L156"
+    },
+    {
+      "source": "chunk03_voice_recording_state_machine",
+      "target": "chunk03_platform_audio_capture",
+      "relation": "branches_between_web_and_native_recording",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/components/VoiceRecorder.tsx",
+      "source_location": "L212"
+    },
+    {
+      "source": "chunk03_platform_audio_capture",
+      "target": "chunk03_transcription_endpoint",
+      "relation": "uploads_recorded_audio_for_transcription",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/components/VoiceRecorder.tsx",
+      "source_location": "L70"
+    },
+    {
+      "source": "chunk03_voice_recording_state_machine",
+      "target": "chunk03_transcription_endpoint",
+      "relation": "transitions_to_transcribing_while_waiting_for_backend",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/components/VoiceRecorder.tsx",
+      "source_location": "L120"
+    },
+    {
+      "source": "chunk03_transcription_endpoint",
+      "target": "chunk03_access_token_provider",
+      "relation": "requires_bearer_token",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/components/VoiceRecorder.tsx",
+      "source_location": "L61"
+    },
+    {
+      "source": "chunk03_access_token_provider",
+      "target": "chunk03_supabase_session_auth",
+      "relation": "reads_current_supabase_session",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/lib/supabase.ts",
+      "source_location": "L49"
+    },
+    {
+      "source": "chunk03_authenticated_api_fetch",
+      "target": "chunk03_access_token_provider",
+      "relation": "injects_token_when_available",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/services/apiClient.ts",
+      "source_location": "L53"
+    },
+    {
+      "source": "chunk03_api_url_resolution",
+      "target": "chunk03_static_expo_build_pipeline",
+      "relation": "shares_environment_domain_configuration_pattern",
+      "confidence": "INFERRED",
+      "confidence_score": 0.66,
+      "source_file": "artifacts/quran-ai-tutor/services/apiClient.ts",
+      "source_location": "L31"
+    },
+    {
+      "source": "chunk03_surah_picker_modal",
+      "target": "chunk03_quran_api_public_read_model",
+      "relation": "loads_surah_metadata_for_selection",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/components/SurahPickerModal.tsx",
+      "source_location": "L31"
+    },
+    {
+      "source": "chunk03_surah_picker_modal",
+      "target": "chunk03_surah_metadata_cache",
+      "relation": "consumes_cached_surah_list_hook",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/components/SurahPickerModal.tsx",
+      "source_location": "L31"
+    },
+    {
+      "source": "chunk03_quran_api_public_read_model",
+      "target": "chunk03_api_url_resolution",
+      "relation": "builds_backend_urls_for_public_quran_routes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/services/quranApi.ts",
+      "source_location": "L32"
+    },
+    {
+      "source": "chunk03_surah_metadata_cache",
+      "target": "chunk03_quran_api_public_read_model",
+      "relation": "caches_surah_and_ayah_fetches_with_stale_times",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/services/quranApi.ts",
+      "source_location": "L53"
+    },
+    {
+      "source": "chunk03_static_quran_learning_content",
+      "target": "chunk03_quiz_question_bank",
+      "relation": "provides_surah_context_for_quiz_items",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/data/quran.ts",
+      "source_location": "L104"
+    },
+    {
+      "source": "chunk03_quiz_question_bank",
+      "target": "chunk03_static_quran_learning_content",
+      "relation": "references_surah_ids_from_static_content",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/data/quran.ts",
+      "source_location": "L107"
+    },
+    {
+      "source": "chunk03_teacher_persona_catalog",
+      "target": "chunk03_islamic_answer_guardrails",
+      "relation": "embeds_behavioral_system_prompts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/data/teachers.ts",
+      "source_location": "L27"
+    },
+    {
+      "source": "chunk03_teacher_persona_catalog",
+      "target": "chunk03_scholar_avatar_state_machine",
+      "relation": "aligns_teacher_persona_with_spoken_avatar_experience",
+      "confidence": "INFERRED",
+      "confidence_score": 0.57,
+      "source_file": "artifacts/quran-ai-tutor/data/teachers.ts",
+      "source_location": "L15"
+    },
+    {
+      "source": "chunk03_ai_provider_catalog",
+      "target": "chunk03_default_openai_model",
+      "relation": "defines_default_provider_and_model",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/data/aiModels.ts",
+      "source_location": "L114"
+    },
+    {
+      "source": "chunk03_ai_provider_catalog",
+      "target": "chunk03_ai_chat_streaming_service",
+      "relation": "supplies_provider_model_identity_options",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/services/aiService.ts",
+      "source_location": "L158"
+    },
+    {
+      "source": "chunk03_revelation_order_sorting",
+      "target": "chunk03_quran_api_public_read_model",
+      "relation": "can_order_surah_metadata_by_revelation_sequence",
+      "confidence": "INFERRED",
+      "confidence_score": 0.51,
+      "source_file": "artifacts/quran-ai-tutor/data/revelationOrder.ts",
+      "source_location": "L16"
+    },
+    {
+      "source": "chunk03_prayer_times_hook",
+      "target": "chunk03_prayer_times_cache",
+      "relation": "uses_six_hour_same_day_cache_before_location_fetch",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/hooks/usePrayerTimes.ts",
+      "source_location": "L90"
+    },
+    {
+      "source": "chunk03_prayer_times_hook",
+      "target": "chunk03_aladhan_prayer_service",
+      "relation": "fetches_timings_by_device_location",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/hooks/usePrayerTimes.ts",
+      "source_location": "L119"
+    },
+    {
+      "source": "chunk03_prayer_times_hook",
+      "target": "chunk03_static_quran_learning_content",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.59,
+      "rationale": "Both features enrich Quran learning with Islamic practice context, though one is dynamic devotional timing and the other static study content.",
+      "source_file": "artifacts/quran-ai-tutor/hooks/usePrayerTimes.ts",
+      "source_location": "L66"
+    },
+    {
+      "source": "chunk03_ai_chat_streaming_service",
+      "target": "chunk03_sse_stream_reader",
+      "relation": "streams_incremental_teacher_responses_through_sse",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/services/aiService.ts",
+      "source_location": "L134"
+    },
+    {
+      "source": "chunk03_ai_chat_streaming_service",
+      "target": "chunk03_client_prompt_templates",
+      "relation": "uses_ayah_context_and_learning_level_prompt_structure",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/services/aiService.ts",
+      "source_location": "L69"
+    },
+    {
+      "source": "chunk03_ai_chat_streaming_service",
+      "target": "chunk03_guardian_mode_chat",
+      "relation": "supports_specialized_guardian_mode_payload",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/services/aiService.ts",
+      "source_location": "L195"
+    },
+    {
+      "source": "chunk03_ai_chat_streaming_service",
+      "target": "chunk03_access_token_provider",
+      "relation": "adds_authorization_to_streaming_and_summary_requests",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/services/aiService.ts",
+      "source_location": "L134"
+    },
+    {
+      "source": "chunk03_tts_language_detection",
+      "target": "chunk03_scholar_avatar_state_machine",
+      "relation": "supports_spoken_multilingual_teacher_experience",
+      "confidence": "INFERRED",
+      "confidence_score": 0.62,
+      "source_file": "artifacts/quran-ai-tutor/services/aiService.ts",
+      "source_location": "L251"
+    },
+    {
+      "source": "chunk03_static_expo_build_pipeline",
+      "target": "chunk03_metro_bundle_generation",
+      "relation": "starts_and_health_checks_metro_before_downloads",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/scripts/build.js",
+      "source_location": "L130"
+    },
+    {
+      "source": "chunk03_static_expo_build_pipeline",
+      "target": "chunk03_static_asset_rewriting",
+      "relation": "extracts_assets_then_rewrites_bundle_and_manifest_urls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/scripts/build.js",
+      "source_location": "L307"
+    },
+    {
+      "source": "chunk03_static_expo_build_pipeline",
+      "target": "chunk03_expo_go_landing_page",
+      "relation": "prepares_deployable_expo_go_preview_artifacts",
+      "confidence": "INFERRED",
+      "confidence_score": 0.55,
+      "source_file": "artifacts/quran-ai-tutor/scripts/build.js",
+      "source_location": "L508"
+    },
+    {
+      "source": "chunk03_expo_go_landing_page",
+      "target": "chunk03_qr_deeplink_bootstrap",
+      "relation": "renders_qr_code_and_mobile_deeplink_for_expo_go",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/server/templates/landing-page.html",
+      "source_location": "L424"
+    },
+    {
+      "source": "chunk03_qr_deeplink_bootstrap",
+      "target": "chunk03_metro_bundle_generation",
+      "relation": "depends_on_generated_exps_url_placeholders_being_filled",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.24,
+      "source_file": "artifacts/quran-ai-tutor/server/templates/landing-page.html",
+      "source_location": "L397"
+    },
+    {
+      "source": "chunk03_api_url_resolution",
+      "target": "chunk03_transcription_endpoint",
+      "relation": "builds_absolute_url_for_multipart_upload",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/components/VoiceRecorder.tsx",
+      "source_location": "L70"
+    },
+    {
+      "source": "chunk03_api_url_resolution",
+      "target": "chunk03_ai_chat_streaming_service",
+      "relation": "builds_absolute_url_for_sse_requests",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/services/aiService.ts",
+      "source_location": "L145"
+    },
+    {
+      "source": "chunk03_islamic_answer_guardrails",
+      "target": "chunk03_client_prompt_templates",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.68,
+      "rationale": "Both encode answer-safety constraints for Quran teaching, one through teacher personas and one through client prompt construction.",
+      "source_file": "artifacts/quran-ai-tutor/data/teachers.ts",
+      "source_location": "L27"
+    },
+    {
+      "source": "chunk03_authenticated_api_fetch",
+      "target": "chunk03_quran_api_public_read_model",
+      "relation": "contrasts_authed_wrapper_with_public_quran_fetches",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/services/apiClient.ts",
+      "source_location": "L12"
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "chunk03_learning_experience_hyperedge",
+      "label": "Personalized Quran learning experience",
+      "nodes": [
+        "chunk03_static_quran_learning_content",
+        "chunk03_quiz_question_bank",
+        "chunk03_teacher_persona_catalog",
+        "chunk03_ai_provider_catalog",
+        "chunk03_ai_chat_streaming_service",
+        "chunk03_scholar_avatar_state_machine"
+      ],
+      "relation": "combines_content_persona_model_and_avatar_into_learning_flow",
+      "confidence": "INFERRED",
+      "confidence_score": 0.7
+    },
+    {
+      "id": "chunk03_authenticated_backend_hyperedge",
+      "label": "Authenticated backend interaction pattern",
+      "nodes": [
+        "chunk03_supabase_session_auth",
+        "chunk03_access_token_provider",
+        "chunk03_api_url_resolution",
+        "chunk03_transcription_endpoint",
+        "chunk03_ai_chat_streaming_service",
+        "chunk03_authenticated_api_fetch"
+      ],
+      "relation": "uses_shared_url_resolution_and_supabase_jwt_for_protected_backend_calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "id": "chunk03_expo_deployment_hyperedge",
+      "label": "Expo Go static deployment flow",
+      "nodes": [
+        "chunk03_static_expo_build_pipeline",
+        "chunk03_metro_bundle_generation",
+        "chunk03_static_asset_rewriting",
+        "chunk03_expo_go_landing_page",
+        "chunk03_qr_deeplink_bootstrap"
+      ],
+      "relation": "turns_metro_output_into_phone_previewable_static_artifacts",
+      "confidence": "INFERRED",
+      "confidence_score": 0.73
+    }
+  ],
+  "input_tokens": 12800,
+  "output_tokens": 6900
+}

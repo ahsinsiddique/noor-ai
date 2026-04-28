@@ -1,0 +1,705 @@
+{
+  "nodes": [
+    {
+      "id": "chunk02:app:quran-ai-tutor",
+      "label": "Noor AI Quran tutor app",
+      "type": "application",
+      "files": [
+        "artifacts/quran-ai-tutor/app/_layout.tsx",
+        "artifacts/quran-ai-tutor/app/mode-select.tsx"
+      ],
+      "summary": "Expo Router React Native app for Quran learning, Islamic guidance chat, voice calling, quizzes, profile settings, and session history."
+    },
+    {
+      "id": "chunk02:layout:root-provider-shell",
+      "label": "RootLayout provider shell",
+      "type": "composition",
+      "file": "artifacts/quran-ai-tutor/app/_layout.tsx",
+      "summary": "Loads fonts, hides the splash screen, configures React Query, wraps the app in error, safe-area, keyboard, theme, auth, feature, sect, madhhab, model, teacher, and session providers, and declares route stack entries."
+    },
+    {
+      "id": "chunk02:context:auth",
+      "label": "AuthProvider",
+      "type": "state_provider",
+      "file": "artifacts/quran-ai-tutor/contexts/AuthContext.tsx",
+      "summary": "Supabase-backed authentication context exposing user, token, authentication state, login, signup, logout, and profile update operations."
+    },
+    {
+      "id": "chunk02:context:sessions",
+      "label": "SessionProvider",
+      "type": "state_provider",
+      "file": "artifacts/quran-ai-tutor/contexts/SessionContext.tsx",
+      "summary": "Offline-first per-user lesson session store that persists to AsyncStorage and best-effort syncs sessions, messages, summaries, and quiz scores to backend API routes."
+    },
+    {
+      "id": "chunk02:concept:offline-first-sync",
+      "label": "offline-first session sync",
+      "type": "design_rationale",
+      "file": "artifacts/quran-ai-tutor/contexts/SessionContext.tsx",
+      "summary": "Local writes happen first; cloud writes are fire-and-forget, with remote UUIDs patched in later and pending messages queued until the remote session row exists."
+    },
+    {
+      "id": "chunk02:store:async-storage",
+      "label": "AsyncStorage persisted preferences and sessions",
+      "type": "storage",
+      "files": [
+        "artifacts/quran-ai-tutor/contexts/SessionContext.tsx",
+        "artifacts/quran-ai-tutor/contexts/ModelContext.tsx",
+        "artifacts/quran-ai-tutor/contexts/MadhhabContext.tsx",
+        "artifacts/quran-ai-tutor/contexts/ThemeContext.tsx",
+        "artifacts/quran-ai-tutor/contexts/SectContext.tsx",
+        "artifacts/quran-ai-tutor/contexts/TeacherContext.tsx",
+        "artifacts/quran-ai-tutor/app/(tabs)/index.tsx",
+        "artifacts/quran-ai-tutor/app/(tabs)/lesson.tsx"
+      ],
+      "summary": "Client-side persistence layer for sessions, selected AI model, tradition, madhhab, theme, teacher, reading mode, autoplay, and translation preferences."
+    },
+    {
+      "id": "chunk02:backend:api-fetch",
+      "label": "backend API via apiFetch",
+      "type": "external_service",
+      "files": [
+        "artifacts/quran-ai-tutor/contexts/AuthContext.tsx",
+        "artifacts/quran-ai-tutor/contexts/SessionContext.tsx"
+      ],
+      "summary": "Authenticated application backend used for profile and session CRUD operations."
+    },
+    {
+      "id": "chunk02:service:supabase-auth",
+      "label": "Supabase auth session",
+      "type": "external_service",
+      "file": "artifacts/quran-ai-tutor/contexts/AuthContext.tsx",
+      "summary": "Supabase auth session source for sign-in, sign-up, sign-out, token bootstrap, and auth state change subscription."
+    },
+    {
+      "id": "chunk02:context:model",
+      "label": "ModelProvider",
+      "type": "state_provider",
+      "file": "artifacts/quran-ai-tutor/contexts/ModelContext.tsx",
+      "summary": "Persists selected AI provider and model; changing provider resets the model to that provider's first model."
+    },
+    {
+      "id": "chunk02:context:sect",
+      "label": "SectProvider",
+      "type": "state_provider",
+      "file": "artifacts/quran-ai-tutor/contexts/SectContext.tsx",
+      "summary": "Persists broad tradition selection such as Sunni, Shia, Ibadi, or non-denominational plus optional sub-school."
+    },
+    {
+      "id": "chunk02:context:madhhab",
+      "label": "MadhhabProvider",
+      "type": "state_provider",
+      "file": "artifacts/quran-ai-tutor/contexts/MadhhabContext.tsx",
+      "summary": "Persists selected Sunni madhhab from Hanafi, Shafi'i, Maliki, and Hanbali."
+    },
+    {
+      "id": "chunk02:context:teacher",
+      "label": "TeacherProvider",
+      "type": "state_provider",
+      "file": "artifacts/quran-ai-tutor/contexts/TeacherContext.tsx",
+      "summary": "Persists the selected AI Quran teacher persona and exposes teacher metadata to lesson screens."
+    },
+    {
+      "id": "chunk02:context:theme",
+      "label": "ThemeProvider",
+      "type": "state_provider",
+      "file": "artifacts/quran-ai-tutor/contexts/ThemeContext.tsx",
+      "summary": "Persists light, dark, or system theme mode and resolves it against the OS color scheme."
+    },
+    {
+      "id": "chunk02:screen:index-redirect",
+      "label": "IndexRedirect",
+      "type": "screen",
+      "file": "artifacts/quran-ai-tutor/app/index.tsx",
+      "summary": "Routes authenticated users to mode selection and unauthenticated users to login after auth loading completes."
+    },
+    {
+      "id": "chunk02:screen:auth-login",
+      "label": "LoginScreen",
+      "type": "screen",
+      "file": "artifacts/quran-ai-tutor/app/(auth)/login.tsx",
+      "summary": "Email/password sign-in UI with validation, password visibility toggle, error reporting, haptic feedback, and navigation to mode selection on success."
+    },
+    {
+      "id": "chunk02:screen:auth-signup",
+      "label": "SignupScreen",
+      "type": "screen",
+      "file": "artifacts/quran-ai-tutor/app/(auth)/signup.tsx",
+      "summary": "Account creation UI collecting name, email, password, and learning level before invoking signup and navigating to mode selection."
+    },
+    {
+      "id": "chunk02:screen:mode-select",
+      "label": "ModeSelectScreen",
+      "type": "screen",
+      "file": "artifacts/quran-ai-tutor/app/mode-select.tsx",
+      "summary": "Authenticated mode chooser between Noor AI Scholar guidance and Online Quran Teacher lesson flow."
+    },
+    {
+      "id": "chunk02:screen:guardian",
+      "label": "GuardianScreen",
+      "type": "screen",
+      "file": "artifacts/quran-ai-tutor/app/guardian.tsx",
+      "summary": "Noor AI guardian chat with suggestions, streaming responses, madhhab preference modal, voice input, multilingual TTS voice selection, and link into call mode."
+    },
+    {
+      "id": "chunk02:screen:call-noor",
+      "label": "CallNoorScreen",
+      "type": "screen",
+      "file": "artifacts/quran-ai-tutor/app/call-noor.tsx",
+      "summary": "Hands-free voice-call interface that records audio, transcribes it, streams a guardian reply, speaks the reply, supports barge-in, and hangs up cleanly."
+    },
+    {
+      "id": "chunk02:concept:call-state-machine",
+      "label": "Call Noor turn state machine",
+      "type": "interaction_model",
+      "file": "artifacts/quran-ai-tutor/app/call-noor.tsx",
+      "summary": "Per-turn flow moves through idle, recording, transcribing, thinking, speaking, and back to idle, with tap behavior varying by state."
+    },
+    {
+      "id": "chunk02:screen:home-tab",
+      "label": "HomeScreen",
+      "type": "screen",
+      "file": "artifacts/quran-ai-tutor/app/(tabs)/index.tsx",
+      "summary": "Teacher-mode home tab showing greeting, quote, optional analytics, prayer times, teacher selection, continue learning, reading order choice, and surah list."
+    },
+    {
+      "id": "chunk02:screen:lesson-tab",
+      "label": "LessonScreen",
+      "type": "screen",
+      "file": "artifacts/quran-ai-tutor/app/(tabs)/lesson.tsx",
+      "summary": "Ayah-based lesson chat using live Quran data with static fallback, teacher persona, session recording, recitation audio, TTS, ayah navigation, and quiz handoff."
+    },
+    {
+      "id": "chunk02:screen:history-tab",
+      "label": "HistoryScreen",
+      "type": "screen",
+      "file": "artifacts/quran-ai-tutor/app/(tabs)/history.tsx",
+      "summary": "Session history tab that syncs cloud sessions, computes average score, lists sessions, lazy-loads messages, and displays conversation details in a modal."
+    },
+    {
+      "id": "chunk02:screen:quiz",
+      "label": "QuizScreen",
+      "type": "screen",
+      "file": "artifacts/quran-ai-tutor/app/quiz.tsx",
+      "summary": "Knowledge-check flow that records selected answers, advances through questions, calculates score percentage, updates current session score, and presents review results."
+    },
+    {
+      "id": "chunk02:screen:profile",
+      "label": "ProfileScreen",
+      "type": "screen",
+      "file": "artifacts/quran-ai-tutor/app/profile.tsx",
+      "summary": "Profile and settings screen for display name, learning level, AI model, tradition, madhhab, home feature toggles, and logout."
+    },
+    {
+      "id": "chunk02:navigation:tabs",
+      "label": "TabLayout",
+      "type": "navigation",
+      "file": "artifacts/quran-ai-tutor/app/(tabs)/_layout.tsx",
+      "summary": "Authenticated tab navigator for Home, Lesson, and History, using native tabs when liquid glass is available and classic tabs otherwise."
+    },
+    {
+      "id": "chunk02:navigation:auth-stack",
+      "label": "AuthLayout",
+      "type": "navigation",
+      "file": "artifacts/quran-ai-tutor/app/(auth)/_layout.tsx",
+      "summary": "Headerless auth stack containing login and signup screens."
+    },
+    {
+      "id": "chunk02:service:ai-chat",
+      "label": "streamChat and streamGuardianChat",
+      "type": "external_service",
+      "files": [
+        "artifacts/quran-ai-tutor/app/(tabs)/lesson.tsx",
+        "artifacts/quran-ai-tutor/app/guardian.tsx",
+        "artifacts/quran-ai-tutor/app/call-noor.tsx"
+      ],
+      "summary": "Streaming AI service calls used by lesson tutoring and guardian modes, parameterized by user message, history, model identity, and religious preference context."
+    },
+    {
+      "id": "chunk02:service:quran-api",
+      "label": "Quran API hooks",
+      "type": "external_service",
+      "files": [
+        "artifacts/quran-ai-tutor/app/(tabs)/index.tsx",
+        "artifacts/quran-ai-tutor/app/(tabs)/lesson.tsx"
+      ],
+      "summary": "useSurahList and useAyah provide live surah metadata and ayah content for home and lesson experiences."
+    },
+    {
+      "id": "chunk02:feature:personalization-context",
+      "label": "AI personalization context",
+      "type": "concept",
+      "files": [
+        "artifacts/quran-ai-tutor/contexts/ModelContext.tsx",
+        "artifacts/quran-ai-tutor/contexts/SectContext.tsx",
+        "artifacts/quran-ai-tutor/contexts/MadhhabContext.tsx",
+        "artifacts/quran-ai-tutor/contexts/TeacherContext.tsx",
+        "artifacts/quran-ai-tutor/app/profile.tsx"
+      ],
+      "summary": "Selected provider, model, tradition, sub-school, madhhab, teacher persona, and user level are used to tailor AI answers."
+    },
+    {
+      "id": "chunk02:feature:voice-interfaces",
+      "label": "voice input and spoken output",
+      "type": "feature",
+      "files": [
+        "artifacts/quran-ai-tutor/app/guardian.tsx",
+        "artifacts/quran-ai-tutor/app/call-noor.tsx",
+        "artifacts/quran-ai-tutor/app/(tabs)/lesson.tsx"
+      ],
+      "summary": "VoiceRecorder, expo-audio, MediaRecorder, transcription endpoint, Expo Speech, and language detection enable speech-to-text and text-to-speech across chat and call surfaces."
+    },
+    {
+      "id": "chunk02:theme:colors",
+      "label": "light and dark color tokens",
+      "type": "design_system",
+      "file": "artifacts/quran-ai-tutor/constants/colors.ts",
+      "summary": "Central light and dark color palettes with Quran-themed green, gold accents, chat bubble colors, semantic destructive colors, borders, surfaces, and shared radius."
+    },
+    {
+      "id": "chunk02:component:keyboard-aware-compat",
+      "label": "KeyboardAwareScrollViewCompat",
+      "type": "component",
+      "file": "artifacts/quran-ai-tutor/components/KeyboardAwareScrollViewCompat.tsx",
+      "summary": "Compatibility wrapper that uses plain ScrollView on web and react-native-keyboard-controller's KeyboardAwareScrollView on native platforms."
+    },
+    {
+      "id": "chunk02:server:static-expo",
+      "label": "standalone static Expo server",
+      "type": "server",
+      "file": "artifacts/quran-ai-tutor/server/serve.js",
+      "summary": "Zero-dependency Node HTTP server for static Expo builds, platform manifests, landing page templating, MIME mapping, base path handling, and path traversal protection."
+    },
+    {
+      "id": "chunk02:screen:not-found",
+      "label": "NotFoundScreen",
+      "type": "screen",
+      "file": "artifacts/quran-ai-tutor/app/+not-found.tsx",
+      "summary": "Fallback route that displays an error message and links back to the home route."
+    }
+  ],
+  "edges": [
+    {
+      "source": "chunk02:layout:root-provider-shell",
+      "target": "chunk02:app:quran-ai-tutor",
+      "relation": "composes_application_shell_for",
+      "evidence": "RootLayout wraps the app in providers and renders RootLayoutNav.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:layout:root-provider-shell",
+      "target": "chunk02:context:auth",
+      "relation": "provides_globally",
+      "evidence": "RootLayout nests AuthProvider around route content.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:layout:root-provider-shell",
+      "target": "chunk02:context:sessions",
+      "relation": "provides_globally",
+      "evidence": "RootLayout nests SessionProvider inside user preference providers.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:context:auth",
+      "target": "chunk02:service:supabase-auth",
+      "relation": "uses_for_authentication",
+      "evidence": "AuthProvider calls supabase.auth.getSession, onAuthStateChange, signInWithPassword, signUp, and signOut.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:context:auth",
+      "target": "chunk02:backend:api-fetch",
+      "relation": "uses_for_profile",
+      "evidence": "fetchProfile and updateProfile call /api/profile through apiFetch.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:context:sessions",
+      "target": "chunk02:concept:offline-first-sync",
+      "relation": "implements",
+      "evidence": "File comment states offline-first; startSession, addMessage, updateSummary, and updateSessionScore write AsyncStorage before backend calls.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:context:sessions",
+      "target": "chunk02:store:async-storage",
+      "relation": "persists_to",
+      "evidence": "SessionProvider reads and writes @quran_tutor_sessions keys using AsyncStorage.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:context:sessions",
+      "target": "chunk02:backend:api-fetch",
+      "relation": "syncs_with",
+      "evidence": "SessionProvider calls /api/sessions and /api/sessions/:id/messages for create, patch, list, and message loading.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:concept:offline-first-sync",
+      "target": "chunk02:backend:api-fetch",
+      "relation": "buffers_until_remote_id_available",
+      "evidence": "Messages are queued in pendingMessages when dbId is missing, then flushed after patchSessionDbId receives a Supabase row UUID.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:context:model",
+      "target": "chunk02:store:async-storage",
+      "relation": "persists_to",
+      "evidence": "ModelProvider stores @quran_tutor_ai_model with provider and modelId.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:context:sect",
+      "target": "chunk02:store:async-storage",
+      "relation": "persists_to",
+      "evidence": "SectProvider uses @quran_tutor_sect and @quran_tutor_sect_subschool.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:context:madhhab",
+      "target": "chunk02:store:async-storage",
+      "relation": "persists_to",
+      "evidence": "MadhhabProvider reads and writes @quran_tutor_madhhab.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:context:teacher",
+      "target": "chunk02:store:async-storage",
+      "relation": "persists_to",
+      "evidence": "TeacherProvider reads and writes @quran_tutor_teacher.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:context:theme",
+      "target": "chunk02:store:async-storage",
+      "relation": "persists_to",
+      "evidence": "ThemeProvider reads and writes @quran_tutor_theme.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:index-redirect",
+      "target": "chunk02:context:auth",
+      "relation": "gates_route_using",
+      "evidence": "IndexRedirect reads isAuthenticated and isLoading from useAuth.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:index-redirect",
+      "target": "chunk02:screen:mode-select",
+      "relation": "redirects_authenticated_users_to",
+      "evidence": "Authenticated users receive Redirect href=/mode-select.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:auth-login",
+      "target": "chunk02:context:auth",
+      "relation": "calls_login",
+      "evidence": "LoginScreen invokes login(email.trim(), password).",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:auth-signup",
+      "target": "chunk02:context:auth",
+      "relation": "calls_signup",
+      "evidence": "SignupScreen invokes signup(name.trim(), email.trim(), password, level).",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:mode-select",
+      "target": "chunk02:screen:guardian",
+      "relation": "routes_to_mode",
+      "evidence": "MODES includes guardian route /guardian for The NoorAI Scholar.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:mode-select",
+      "target": "chunk02:navigation:tabs",
+      "relation": "routes_to_mode",
+      "evidence": "MODES includes teacher route /(tabs) for The Online Quran Teacher.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:navigation:tabs",
+      "target": "chunk02:context:auth",
+      "relation": "gates_route_using",
+      "evidence": "TabLayout redirects to /(auth)/login when auth loading is done and isAuthenticated is false.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:guardian",
+      "target": "chunk02:service:ai-chat",
+      "relation": "streams_guardian_replies_from",
+      "evidence": "GuardianScreen calls streamGuardianChat with message, history, identity, delta callback, and abort signal.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:guardian",
+      "target": "chunk02:feature:personalization-context",
+      "relation": "passes_identity_to_ai",
+      "evidence": "GuardianScreen sends provider, model, sect, subSchool, and madhhab in identity.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:guardian",
+      "target": "chunk02:feature:voice-interfaces",
+      "relation": "supports",
+      "evidence": "GuardianScreen uses VoiceRecorder, detectTtsLanguage, Speech.getAvailableVoicesAsync, and Speech.speak.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:guardian",
+      "target": "chunk02:screen:call-noor",
+      "relation": "links_to_voice_mode",
+      "evidence": "Guardian header phone button routes to /call-noor.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:call-noor",
+      "target": "chunk02:concept:call-state-machine",
+      "relation": "implements",
+      "evidence": "CallState union and handleOrbPress switch define idle, recording, transcribing, thinking, and speaking behavior.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:call-noor",
+      "target": "chunk02:feature:voice-interfaces",
+      "relation": "orchestrates",
+      "evidence": "CallNoorScreen records native audio or web MediaRecorder blobs, posts to /api/quran/transcribe, and speaks responses with Expo Speech.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:call-noor",
+      "target": "chunk02:service:ai-chat",
+      "relation": "streams_guardian_replies_from",
+      "evidence": "CallNoorScreen calls streamGuardianChat after transcription.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:lesson-tab",
+      "target": "chunk02:context:sessions",
+      "relation": "records_lesson_conversation_in",
+      "evidence": "LessonScreen starts a session on mount and adds user and assistant messages to the current session.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:lesson-tab",
+      "target": "chunk02:service:ai-chat",
+      "relation": "streams_tutoring_replies_from",
+      "evidence": "LessonScreen calls streamChat with message, ayah context, teacherPrompt, history, identity, and delta callback.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:lesson-tab",
+      "target": "chunk02:service:quran-api",
+      "relation": "loads_live_quran_content_from",
+      "evidence": "LessonScreen calls useSurahList and useAyah and falls back to staticSurahs when live ayah data is absent.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:lesson-tab",
+      "target": "chunk02:feature:personalization-context",
+      "relation": "passes_teacher_and_identity_to_ai",
+      "evidence": "LessonScreen includes teacher.systemPrompt, user level, provider, model, sect, subSchool, and madhhab in tutoring requests.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:lesson-tab",
+      "target": "chunk02:screen:quiz",
+      "relation": "hands_off_to",
+      "evidence": "finishSession stops speech/audio and routes to /quiz.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:quiz",
+      "target": "chunk02:context:sessions",
+      "relation": "updates_current_session_score",
+      "evidence": "QuizScreen calls updateSessionScore(currentSession.id, score) after the last question.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:history-tab",
+      "target": "chunk02:context:sessions",
+      "relation": "reads_and_syncs",
+      "evidence": "HistoryScreen reads sessions, calls syncFromCloud on token presence, and loadSessionMessages for cloud sessions with empty message arrays.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:home-tab",
+      "target": "chunk02:context:sessions",
+      "relation": "summarizes_progress_from",
+      "evidence": "HomeScreen reads sessions to compute lastSession, totalSessions, and average quiz score.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:home-tab",
+      "target": "chunk02:service:quran-api",
+      "relation": "lists_surahs_from",
+      "evidence": "HomeScreen calls useSurahList and displays API surahs, optionally sorted by revelation order.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:home-tab",
+      "target": "chunk02:store:async-storage",
+      "relation": "persists_reading_order_preference_to",
+      "evidence": "HomeScreen reads and writes @quran_tutor_reading_mode.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:profile",
+      "target": "chunk02:feature:personalization-context",
+      "relation": "configures",
+      "evidence": "ProfileScreen renders model, sect, madhhab, learning level, and feature toggle controls.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:screen:profile",
+      "target": "chunk02:context:auth",
+      "relation": "updates_profile_and_logout_through",
+      "evidence": "ProfileScreen calls updateProfile and logout from useAuth.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:theme:colors",
+      "target": "chunk02:context:theme",
+      "relation": "provides_palette_for",
+      "evidence": "ThemeProvider resolves theme mode; screens use useColors to consume color tokens derived from the theme system.",
+      "provenance": "INFERRED",
+      "confidence_score": 0.75
+    },
+    {
+      "source": "chunk02:component:keyboard-aware-compat",
+      "target": "chunk02:app:quran-ai-tutor",
+      "relation": "normalizes_keyboard_scrolling_across_platforms",
+      "evidence": "Component conditionally returns ScrollView on web and KeyboardAwareScrollView on native.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:server:static-expo",
+      "target": "chunk02:app:quran-ai-tutor",
+      "relation": "serves_static_build_for",
+      "evidence": "serve.js serves static-build files, manifests, and landing page HTML for the Expo app.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "chunk02:server:static-expo",
+      "target": "chunk02:concept:offline-first-sync",
+      "relation": "semantically_similar_to",
+      "evidence": "Both use defensive fallback behavior: the server rejects traversal and returns 404/403 while the session sync keeps local data on network failures.",
+      "provenance": "INFERRED",
+      "confidence_score": 0.62
+    },
+    {
+      "source": "chunk02:screen:guardian",
+      "target": "chunk02:screen:lesson-tab",
+      "relation": "semantically_similar_to",
+      "evidence": "Both are chat experiences that stream AI deltas into assistant bubbles, use suggestions, haptics, abort controllers, scrolling, and spoken replies, but differ in domain context.",
+      "provenance": "INFERRED",
+      "confidence_score": 0.82
+    },
+    {
+      "source": "chunk02:screen:not-found",
+      "target": "chunk02:app:quran-ai-tutor",
+      "relation": "provides_fallback_route_for",
+      "evidence": "NotFoundScreen sets title Oops, tells the user the screen does not exist, and links href=/.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "chunk02:hyperedge:ai-personalization-flow",
+      "label": "personalized AI answer flow",
+      "nodes": [
+        "chunk02:context:model",
+        "chunk02:context:sect",
+        "chunk02:context:madhhab",
+        "chunk02:context:teacher",
+        "chunk02:feature:personalization-context",
+        "chunk02:screen:guardian",
+        "chunk02:screen:lesson-tab",
+        "chunk02:screen:call-noor",
+        "chunk02:service:ai-chat"
+      ],
+      "relation": "combines_preferences_and_persona_into_streaming_ai_requests",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "id": "chunk02:hyperedge:session-lifecycle",
+      "label": "lesson session lifecycle",
+      "nodes": [
+        "chunk02:screen:lesson-tab",
+        "chunk02:context:sessions",
+        "chunk02:concept:offline-first-sync",
+        "chunk02:screen:quiz",
+        "chunk02:screen:history-tab",
+        "chunk02:store:async-storage",
+        "chunk02:backend:api-fetch"
+      ],
+      "relation": "creates_records_scores_syncs_and_reviews_learning_sessions",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "id": "chunk02:hyperedge:auth-gated-routing",
+      "label": "authenticated navigation surface",
+      "nodes": [
+        "chunk02:context:auth",
+        "chunk02:screen:index-redirect",
+        "chunk02:screen:auth-login",
+        "chunk02:screen:auth-signup",
+        "chunk02:screen:mode-select",
+        "chunk02:navigation:tabs",
+        "chunk02:screen:profile"
+      ],
+      "relation": "uses_auth_state_to_gate_entry_and_main_app_routes",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "input_tokens": 43182,
+  "output_tokens": 16835
+}

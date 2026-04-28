@@ -1,0 +1,17 @@
+artifacts/quran-ai-tutor/components/ErrorFallback.tsx
+artifacts/quran-ai-tutor/components/ScholarAvatar.tsx
+artifacts/quran-ai-tutor/components/VoiceRecorder.tsx
+artifacts/quran-ai-tutor/components/SurahPickerModal.tsx
+artifacts/quran-ai-tutor/components/ErrorBoundary.tsx
+artifacts/quran-ai-tutor/hooks/usePrayerTimes.ts
+artifacts/quran-ai-tutor/hooks/useColors.ts
+artifacts/quran-ai-tutor/scripts/build.js
+artifacts/quran-ai-tutor/lib/supabase.ts
+artifacts/quran-ai-tutor/data/aiModels.ts
+artifacts/quran-ai-tutor/data/quran.ts
+artifacts/quran-ai-tutor/data/teachers.ts
+artifacts/quran-ai-tutor/data/revelationOrder.ts
+artifacts/quran-ai-tutor/services/quranApi.ts
+artifacts/quran-ai-tutor/services/aiService.ts
+artifacts/quran-ai-tutor/services/apiClient.ts
+artifacts/quran-ai-tutor/server/templates/landing-page.html

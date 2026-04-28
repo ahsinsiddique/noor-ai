@@ -20,7 +20,7 @@ export interface ChatContext {
 }
 
 export interface AIIdentity {
-  provider?: "openai" | "xai";
+  provider?: "openai" | "xai" | "sou" | "ollama";
   model?: string;
   sect?: "sunni" | "shia" | "ibadi" | "general" | null;
   subSchool?: string | null;

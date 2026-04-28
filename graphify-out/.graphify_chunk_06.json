@@ -1,0 +1,234 @@
+{
+  "nodes": [
+    {
+      "id": "molana_avatar_image",
+      "label": "Molana Avatar Image",
+      "file_type": "image",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "molana_avatar_elderly_islamic_scholar",
+      "label": "Elderly Islamic Scholar",
+      "file_type": "image",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "molana_avatar_white_turban_and_beard",
+      "label": "White Turban and Long Beard",
+      "file_type": "image",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "molana_avatar_library_study_setting",
+      "label": "Library or Study Setting",
+      "file_type": "image",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "molana_avatar_warm_window_light",
+      "label": "Warm Window Light",
+      "file_type": "image",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "molana_avatar_students_or_listeners",
+      "label": "Students or Listeners",
+      "file_type": "image",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "molana_avatar_noor_tutor_persona",
+      "label": "Noor Tutor Persona",
+      "file_type": "image",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "molana_avatar_trustworthy_religious_guidance",
+      "label": "Trustworthy Religious Guidance",
+      "file_type": "image",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "molana_avatar_rationale_for_scholar_avatar",
+      "label": "Rationale for Scholar Avatar",
+      "file_type": "image",
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "molana_avatar_image",
+      "target": "molana_avatar_elderly_islamic_scholar",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "molana_avatar_elderly_islamic_scholar",
+      "target": "molana_avatar_white_turban_and_beard",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "molana_avatar_image",
+      "target": "molana_avatar_library_study_setting",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "molana_avatar_image",
+      "target": "molana_avatar_warm_window_light",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "molana_avatar_image",
+      "target": "molana_avatar_students_or_listeners",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "molana_avatar_noor_tutor_persona",
+      "target": "molana_avatar_image",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "molana_avatar_elderly_islamic_scholar",
+      "target": "molana_avatar_trustworthy_religious_guidance",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.82,
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "molana_avatar_library_study_setting",
+      "target": "molana_avatar_trustworthy_religious_guidance",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.72,
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "molana_avatar_warm_window_light",
+      "target": "molana_avatar_trustworthy_religious_guidance",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.65,
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "molana_avatar_rationale_for_scholar_avatar",
+      "target": "molana_avatar_noor_tutor_persona",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.78,
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "molana_avatar_students_or_listeners",
+      "target": "molana_avatar_elderly_islamic_scholar",
+      "relation": "conceptually_related_to",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.25,
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "molana_avatar_scholarly_guidance_composition",
+      "label": "Scholarly Guidance Composition",
+      "nodes": [
+        "molana_avatar_elderly_islamic_scholar",
+        "molana_avatar_library_study_setting",
+        "molana_avatar_warm_window_light",
+        "molana_avatar_students_or_listeners",
+        "molana_avatar_trustworthy_religious_guidance"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "artifacts/quran-ai-tutor/assets/images/noor/molana-avatar.jpg"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

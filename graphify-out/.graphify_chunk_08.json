@@ -1,0 +1,188 @@
+{
+  "nodes": [
+    {
+      "id": "file:artifacts/quran-ai-tutor/assets/images/noor/molana-portrait.jpg",
+      "label": "molana-portrait.jpg",
+      "type": "image_asset",
+      "source": "artifacts/quran-ai-tutor/assets/images/noor/molana-portrait.jpg",
+      "properties": {
+        "format": "jpg",
+        "asset_context": "Quran AI tutor visual asset"
+      }
+    },
+    {
+      "id": "entity:elderly_religious_teacher",
+      "label": "Elderly religious teacher",
+      "type": "person_archetype",
+      "source": "artifacts/quran-ai-tutor/assets/images/noor/molana-portrait.jpg",
+      "properties": {
+        "visual_description": "An elderly man with a white beard, white turban, and traditional robe seated in a teaching posture."
+      }
+    },
+    {
+      "id": "entity:children_students",
+      "label": "Children students",
+      "type": "person_group",
+      "source": "artifacts/quran-ai-tutor/assets/images/noor/molana-portrait.jpg",
+      "properties": {
+        "visual_description": "Several young boys sit near the teacher and appear to be listening."
+      }
+    },
+    {
+      "id": "concept:islamic_instruction",
+      "label": "Islamic instruction",
+      "type": "concept",
+      "source": "artifacts/quran-ai-tutor/assets/images/noor/molana-portrait.jpg",
+      "properties": {
+        "description": "A teaching scene visually associated with religious study and traditional Islamic learning."
+      }
+    },
+    {
+      "id": "concept:mentorship_and_guidance",
+      "label": "Mentorship and guidance",
+      "type": "concept",
+      "source": "artifacts/quran-ai-tutor/assets/images/noor/molana-portrait.jpg",
+      "properties": {
+        "description": "The teacher's seated posture, hand gesture, and proximity to children communicate guidance and instruction."
+      }
+    },
+    {
+      "id": "setting:warm_study_or_madrasa",
+      "label": "Warm study or madrasa setting",
+      "type": "setting",
+      "source": "artifacts/quran-ai-tutor/assets/images/noor/molana-portrait.jpg",
+      "properties": {
+        "visual_description": "A warmly lit interior with bookshelves and window light, suggesting a study, classroom, or madrasa-like environment."
+      }
+    },
+    {
+      "id": "design_intent:trustworthy_quran_tutor_persona",
+      "label": "Trustworthy Quran tutor persona",
+      "type": "design_intent",
+      "source": "artifacts/quran-ai-tutor/assets/images/noor/molana-portrait.jpg",
+      "properties": {
+        "rationale_for": "The portrait likely establishes a wise, compassionate, traditional tutor identity for the Quran AI tutor experience."
+      }
+    },
+    {
+      "id": "visual_style:warm_reverent_portrait",
+      "label": "Warm reverent portrait style",
+      "type": "visual_style",
+      "source": "artifacts/quran-ai-tutor/assets/images/noor/molana-portrait.jpg",
+      "properties": {
+        "description": "Soft golden lighting, shallow depth of field, and a focused teacher figure create a reverent educational mood."
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:artifacts/quran-ai-tutor/assets/images/noor/molana-portrait.jpg",
+      "target": "entity:elderly_religious_teacher",
+      "type": "depicts",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "evidence": "The image prominently shows an elderly bearded man in traditional clothing and turban."
+    },
+    {
+      "source": "file:artifacts/quran-ai-tutor/assets/images/noor/molana-portrait.jpg",
+      "target": "entity:children_students",
+      "type": "depicts",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "evidence": "The image includes multiple children seated near the central teacher figure."
+    },
+    {
+      "source": "file:artifacts/quran-ai-tutor/assets/images/noor/molana-portrait.jpg",
+      "target": "setting:warm_study_or_madrasa",
+      "type": "depicts_setting",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "evidence": "Bookshelves, warm window light, and indoor seating form the background."
+    },
+    {
+      "source": "entity:elderly_religious_teacher",
+      "target": "entity:children_students",
+      "type": "teaches_or_guides",
+      "provenance": "INFERRED",
+      "confidence_score": 0.82,
+      "evidence": "The teacher's gesture and the children's attentive placement imply an instructional relationship."
+    },
+    {
+      "source": "entity:elderly_religious_teacher",
+      "target": "concept:mentorship_and_guidance",
+      "type": "embodies",
+      "provenance": "INFERRED",
+      "confidence_score": 0.86,
+      "evidence": "The central figure's age, expression, clothing, and open hand gesture communicate wisdom and guidance."
+    },
+    {
+      "source": "setting:warm_study_or_madrasa",
+      "target": "concept:islamic_instruction",
+      "type": "supports_context_for",
+      "provenance": "INFERRED",
+      "confidence_score": 0.72,
+      "evidence": "The traditional clothing, teacher-student grouping, books, and asset path context suggest Islamic learning."
+    },
+    {
+      "source": "file:artifacts/quran-ai-tutor/assets/images/noor/molana-portrait.jpg",
+      "target": "visual_style:warm_reverent_portrait",
+      "type": "uses_visual_style",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0,
+      "evidence": "The image uses warm light, soft background focus, and a dignified portrait composition."
+    },
+    {
+      "source": "visual_style:warm_reverent_portrait",
+      "target": "design_intent:trustworthy_quran_tutor_persona",
+      "type": "rationale_for",
+      "provenance": "INFERRED",
+      "confidence_score": 0.78,
+      "evidence": "A warm, dignified teacher portrait is suited to signaling trust, care, and authority in a Quran tutoring interface."
+    },
+    {
+      "source": "concept:islamic_instruction",
+      "target": "design_intent:trustworthy_quran_tutor_persona",
+      "type": "rationale_for",
+      "provenance": "INFERRED",
+      "confidence_score": 0.74,
+      "evidence": "The file is located under quran-ai-tutor assets and visually presents a traditional religious teaching scene."
+    },
+    {
+      "source": "entity:children_students",
+      "target": "concept:islamic_instruction",
+      "type": "participates_in",
+      "provenance": "AMBIGUOUS",
+      "confidence_score": 0.24,
+      "evidence": "The children appear to be students, but the exact lesson content is not visible."
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "hyperedge:teacher_students_learning_scene",
+      "type": "learning_scene",
+      "nodes": [
+        "entity:elderly_religious_teacher",
+        "entity:children_students",
+        "setting:warm_study_or_madrasa",
+        "concept:islamic_instruction"
+      ],
+      "provenance": "INFERRED",
+      "confidence_score": 0.8,
+      "rationale": "Together, the teacher, children, books, and classroom-like setting form a coherent religious learning scene."
+    },
+    {
+      "id": "hyperedge:tutor_persona_design_language",
+      "type": "design_rationale",
+      "nodes": [
+        "visual_style:warm_reverent_portrait",
+        "concept:mentorship_and_guidance",
+        "design_intent:trustworthy_quran_tutor_persona"
+      ],
+      "provenance": "INFERRED",
+      "confidence_score": 0.76,
+      "rationale": "The portrait style and guidance theme likely support an interface persona meant to feel wise, caring, and credible."
+    }
+  ],
+  "input_tokens": 2777,
+  "output_tokens": 1854
+}

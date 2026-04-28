@@ -1,0 +1,312 @@
+{
+  "nodes": [
+    {
+      "id": "file:artifacts/quran-ai-tutor/assets/images/logo.png",
+      "label": "logo.png",
+      "type": "image_file",
+      "source_files": [
+        "artifacts/quran-ai-tutor/assets/images/logo.png"
+      ],
+      "metadata": {
+        "format": "PNG",
+        "dimensions": "1408x768",
+        "color_mode": "RGBA"
+      }
+    },
+    {
+      "id": "brand:noor_ai",
+      "label": "Noor Ai",
+      "type": "brand_entity",
+      "source_files": [
+        "artifacts/quran-ai-tutor/assets/images/logo.png"
+      ]
+    },
+    {
+      "id": "text:noor_ai_wordmark",
+      "label": "Noor Ai wordmark",
+      "type": "visual_text",
+      "source_files": [
+        "artifacts/quran-ai-tutor/assets/images/logo.png"
+      ]
+    },
+    {
+      "id": "text:guiding_intelligence_empowering_humanity",
+      "label": "Guiding Intelligence. Empowering Humanity.",
+      "type": "tagline",
+      "source_files": [
+        "artifacts/quran-ai-tutor/assets/images/logo.png"
+      ]
+    },
+    {
+      "id": "visual:split_head_brain_icon",
+      "label": "Split human head and brain icon",
+      "type": "logo_symbol",
+      "source_files": [
+        "artifacts/quran-ai-tutor/assets/images/logo.png"
+      ]
+    },
+    {
+      "id": "concept:human_intelligence",
+      "label": "Human intelligence",
+      "type": "concept",
+      "source_files": [
+        "artifacts/quran-ai-tutor/assets/images/logo.png"
+      ]
+    },
+    {
+      "id": "concept:artificial_intelligence",
+      "label": "Artificial intelligence",
+      "type": "concept",
+      "source_files": [
+        "artifacts/quran-ai-tutor/assets/images/logo.png"
+      ]
+    },
+    {
+      "id": "visual:neural_circuit_pattern",
+      "label": "Neural circuit pattern",
+      "type": "visual_motif",
+      "source_files": [
+        "artifacts/quran-ai-tutor/assets/images/logo.png"
+      ]
+    },
+    {
+      "id": "visual:islamic_geometric_ornament",
+      "label": "Islamic geometric ornament",
+      "type": "visual_motif",
+      "source_files": [
+        "artifacts/quran-ai-tutor/assets/images/logo.png"
+      ]
+    },
+    {
+      "id": "visual:radiant_crown_starburst",
+      "label": "Radiant crown starburst",
+      "type": "visual_motif",
+      "source_files": [
+        "artifacts/quran-ai-tutor/assets/images/logo.png"
+      ]
+    },
+    {
+      "id": "palette:gold_and_cyan",
+      "label": "Gold and cyan color palette",
+      "type": "color_palette",
+      "source_files": [
+        "artifacts/quran-ai-tutor/assets/images/logo.png"
+      ]
+    },
+    {
+      "id": "concept:guidance",
+      "label": "Guidance",
+      "type": "concept",
+      "source_files": [
+        "artifacts/quran-ai-tutor/assets/images/logo.png"
+      ]
+    },
+    {
+      "id": "concept:empowerment",
+      "label": "Empowerment",
+      "type": "concept",
+      "source_files": [
+        "artifacts/quran-ai-tutor/assets/images/logo.png"
+      ]
+    },
+    {
+      "id": "project:quran_ai_tutor",
+      "label": "Quran AI Tutor",
+      "type": "project_context",
+      "source_files": [
+        "artifacts/quran-ai-tutor/assets/images/logo.png"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:artifacts/quran-ai-tutor/assets/images/logo.png",
+      "target": "brand:noor_ai",
+      "relation": "depicts_brand",
+      "evidence": "The image displays a central logo with the visible brand text \"Noor Ai\".",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "brand:noor_ai",
+      "target": "text:noor_ai_wordmark",
+      "relation": "represented_by",
+      "evidence": "The wordmark reads \"Noor Ai\" beneath the symbol.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "brand:noor_ai",
+      "target": "text:guiding_intelligence_empowering_humanity",
+      "relation": "has_tagline",
+      "evidence": "The tagline appears below the wordmark.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "text:guiding_intelligence_empowering_humanity",
+      "target": "concept:guidance",
+      "relation": "expresses",
+      "evidence": "The tagline includes the phrase \"Guiding Intelligence\".",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "text:guiding_intelligence_empowering_humanity",
+      "target": "concept:empowerment",
+      "relation": "expresses",
+      "evidence": "The tagline includes the phrase \"Empowering Humanity\".",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "brand:noor_ai",
+      "target": "visual:split_head_brain_icon",
+      "relation": "uses_logo_symbol",
+      "evidence": "A split human profile and brain graphic is placed above the brand name.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "visual:split_head_brain_icon",
+      "target": "concept:human_intelligence",
+      "relation": "symbolizes",
+      "evidence": "The left side of the symbol is a human head profile with organic brain-like forms.",
+      "provenance": "INFERRED",
+      "confidence_score": 0.86
+    },
+    {
+      "source": "visual:split_head_brain_icon",
+      "target": "concept:artificial_intelligence",
+      "relation": "symbolizes",
+      "evidence": "The right side of the symbol is a brain shape made from cyan circuit and node lines.",
+      "provenance": "INFERRED",
+      "confidence_score": 0.9
+    },
+    {
+      "source": "visual:split_head_brain_icon",
+      "target": "visual:neural_circuit_pattern",
+      "relation": "contains",
+      "evidence": "The right half of the icon contains connected circuit traces and node points.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "file:artifacts/quran-ai-tutor/assets/images/logo.png",
+      "target": "visual:islamic_geometric_ornament",
+      "relation": "contains_background_motif",
+      "evidence": "Pale interlaced geometric linework frames the left and right edges of the image.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "visual:islamic_geometric_ornament",
+      "target": "project:quran_ai_tutor",
+      "relation": "rationale_for",
+      "evidence": "The asset path places the image inside a Quran AI tutor project, and the geometric motif aligns with Islamic visual design conventions.",
+      "provenance": "INFERRED",
+      "confidence_score": 0.74
+    },
+    {
+      "source": "file:artifacts/quran-ai-tutor/assets/images/logo.png",
+      "target": "visual:radiant_crown_starburst",
+      "relation": "contains_symbolic_motif",
+      "evidence": "A gold and cyan crown-like starburst rises above the head and brain symbol.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "visual:radiant_crown_starburst",
+      "target": "concept:guidance",
+      "relation": "rationale_for",
+      "evidence": "The luminous starburst visually reinforces the guidance theme stated in the tagline.",
+      "provenance": "INFERRED",
+      "confidence_score": 0.72
+    },
+    {
+      "source": "file:artifacts/quran-ai-tutor/assets/images/logo.png",
+      "target": "palette:gold_and_cyan",
+      "relation": "uses_color_palette",
+      "evidence": "The logo combines gold elements on the left with cyan elements on the right and in the wordmark.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "palette:gold_and_cyan",
+      "target": "concept:human_intelligence",
+      "relation": "visually_associates",
+      "evidence": "Gold is used on the human profile and organic left-brain forms.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "palette:gold_and_cyan",
+      "target": "concept:artificial_intelligence",
+      "relation": "visually_associates",
+      "evidence": "Cyan is used on the circuit-like brain half and the \"Ai\" portion of the wordmark.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "visual:islamic_geometric_ornament",
+      "target": "visual:neural_circuit_pattern",
+      "relation": "semantically_similar_to",
+      "evidence": "Both motifs communicate ordered networks through connected line geometry, one through Islamic ornament and the other through AI circuitry.",
+      "provenance": "INFERRED",
+      "confidence_score": 0.62
+    },
+    {
+      "source": "file:artifacts/quran-ai-tutor/assets/images/logo.png",
+      "target": "project:quran_ai_tutor",
+      "relation": "asset_of",
+      "evidence": "The image is located under artifacts/quran-ai-tutor/assets/images/.",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "hyperedge:noor_ai_identity",
+      "label": "Noor Ai brand identity",
+      "nodes": [
+        "brand:noor_ai",
+        "text:noor_ai_wordmark",
+        "text:guiding_intelligence_empowering_humanity",
+        "visual:split_head_brain_icon"
+      ],
+      "relation": "brand_identity_composed_of",
+      "provenance": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "id": "hyperedge:human_ai_synthesis",
+      "label": "Human and artificial intelligence synthesis",
+      "nodes": [
+        "visual:split_head_brain_icon",
+        "concept:human_intelligence",
+        "concept:artificial_intelligence",
+        "visual:neural_circuit_pattern",
+        "palette:gold_and_cyan"
+      ],
+      "relation": "communicates_design_intent",
+      "provenance": "INFERRED",
+      "confidence_score": 0.84
+    },
+    {
+      "id": "hyperedge:islamic_ai_guidance",
+      "label": "Islamic visual language for AI guidance",
+      "nodes": [
+        "project:quran_ai_tutor",
+        "visual:islamic_geometric_ornament",
+        "visual:radiant_crown_starburst",
+        "concept:guidance",
+        "concept:empowerment"
+      ],
+      "relation": "supports_religious_ai_positioning",
+      "provenance": "INFERRED",
+      "confidence_score": 0.76
+    }
+  ],
+  "input_tokens": 420,
+  "output_tokens": 2220
+}

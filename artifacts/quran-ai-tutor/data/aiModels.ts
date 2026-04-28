@@ -6,7 +6,7 @@
  * what the server side will actually call.
  */
 
-export type ProviderId = "openai" | "xai";
+export type ProviderId = "openai" | "xai" | "sou" | "ollama";
 
 export interface AIModel {
   /** Model ID passed to the API (e.g. "gpt-4.1"). */
@@ -78,6 +78,34 @@ export const AI_PROVIDERS: AIProvider[] = [
         name: "Grok 3 Mini",
         description: "Lightweight — fastest responses.",
         tier: "fast",
+      },
+    ],
+  },
+  {
+    id: "sou",
+    name: "Sou Imagery",
+    tagline: "Sou Imagery — Advanced capabilities",
+    symbol: "✨",
+    models: [
+      {
+        id: "gpt-5.4",
+        name: "GPT-5.4",
+        description: "Sou Imagery's flagship model.",
+        tier: "smart",
+      },
+    ],
+  },
+  {
+    id: "ollama",
+    name: "Ollama (Local)",
+    tagline: "Local open-source models",
+    symbol: "🦙",
+    models: [
+      {
+        id: "gpt-oss:20b",
+        name: "GPT-OSS 20B",
+        description: "Local model running via Ollama.",
+        tier: "balanced",
       },
     ],
   },
