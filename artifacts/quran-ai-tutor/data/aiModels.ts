@@ -102,8 +102,8 @@ export const AI_PROVIDERS: AIProvider[] = [
     symbol: "🦙",
     models: [
       {
-        id: "gpt-oss:20b",
-        name: "GPT-OSS 20B",
+        id: "qwen3-coder:30b",
+        name: "Qwen3 Coder 30B",
         description: "Local model running via Ollama.",
         tier: "balanced",
       },
@@ -112,7 +112,7 @@ export const AI_PROVIDERS: AIProvider[] = [
 ];
 
 export const DEFAULT_PROVIDER: ProviderId = "ollama";
-export const DEFAULT_MODEL_ID = "gpt-oss:20b";
+export const DEFAULT_MODEL_ID = "qwen3-coder:30b";
 
 export function getProvider(id: ProviderId): AIProvider {
   return AI_PROVIDERS.find((p) => p.id === id) ?? AI_PROVIDERS[0];

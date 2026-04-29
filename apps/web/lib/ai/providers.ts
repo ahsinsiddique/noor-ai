@@ -59,8 +59,17 @@ function getSou(): OpenAI {
 
 function getOllama(): OpenAI {
   if (_ollama) return _ollama;
+  
+  const ollamaBase = process.env.OLLAMA_BASE_URL;
+  if (!ollamaBase) throw new Error("OLLAMA_BASE_URL is not configured");
+
+  let baseURL = ollamaBase.replace(/\/+$/, "");
+  if (!baseURL.endsWith("/v1")) {
+    baseURL += "/v1";
+  }
+
   // Ollama provides local, unauthenticated OpenAI API compat layer at /v1.
-  _ollama = new OpenAI({ apiKey: "ollama", baseURL: "http://localhost:11434/v1" });
+  _ollama = new OpenAI({ apiKey: "ollama", baseURL });
   return _ollama;
 }
 
@@ -70,7 +79,7 @@ export const DEFAULT_MODELS: Record<ProviderId, string> = {
   openai: "gpt-4.1",
   xai: "grok-4-latest",
   sou: "gpt-5.4",
-  ollama: "gpt-oss:20b",
+  ollama: "qwen3-coder:30b",
 };
 
 // ─── Unified streaming helper ────────────────────────────────────────────────
@@ -132,7 +141,19 @@ export function normaliseModel(provider: ProviderId, raw: unknown): string {
   return DEFAULT_MODELS[provider];
 }
 
-/** Transcription always goes through OpenAI — Grok has no STT endpoint. */
+let _whisper: OpenAI | null = null;
+
+/** Transcription uses a local whisper compatible endpoint. */
 export function transcriptionClient(): OpenAI {
-  return getOpenAI();
+  if (_whisper) return _whisper;
+  
+  const whisperBase = process.env.WHISPER_BASE_URL;
+  if (!whisperBase) throw new Error("WHISPER_BASE_URL is not configured");
+
+  let baseURL = whisperBase.replace(/\/+$/, "");
+  if (!baseURL.endsWith("/v1")) {
+    baseURL += "/v1";
+  }
+  _whisper = new OpenAI({ apiKey: "local-whisper", baseURL });
+  return _whisper;
 }

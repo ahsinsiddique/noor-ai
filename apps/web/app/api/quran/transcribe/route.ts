@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
   try {
     const openai = transcriptionClient();
-    const model = process.env.WHISPER_MODEL ?? "gpt-4o-mini-transcribe";
+    const model = process.env.WHISPER_MODEL ?? "whisper-1";
     const transcription = await openai.audio.transcriptions.create({
       file: file as File,
       model,

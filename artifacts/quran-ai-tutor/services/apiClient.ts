@@ -53,27 +53,26 @@ export function apiUrl(path: string): string {
 export function getOllamaUrl(path: string): string {
   // Allow explicit override
   if (process.env.EXPO_PUBLIC_OLLAMA_URL) {
+    console.warn(`[getOllamaUrl] Using EXPO_PUBLIC_OLLAMA_URL: ${process.env.EXPO_PUBLIC_OLLAMA_URL}`);
     const base = process.env.EXPO_PUBLIC_OLLAMA_URL.replace(/\/+$/, "");
     return `${base}${path.startsWith('/') ? '' : '/'}${path}`;
   }
 
   // Derive from Next.js backend URL to ensure mobile devices hit the Mac host
-  // e.g. "http://192.168.1.42:3000" -> "http://192.168.1.42:11434"
   const base = getBaseUrl();
-  const androidUrl = "http://10.0.2.2:11434";
-  const androidUrl2 = "http://192.168.110.188:11434";
+  const defaultOllamaIp = "http://192.168.110.80:11434";
 
+  let origin = Platform.OS === 'android' ? defaultOllamaIp : defaultOllamaIp; // fallback
 
-  let origin = Platform.OS === 'android' ? androidUrl2 : "http://localhost:11434"; // fallback
-
-  if (base) {
-    const match = base.match(/^(https?:\/\/[^:/]+)(:\d+)?/);
-    if (match) {
-      origin = `${match[1]}:11434`;
-    }
+  if (base && base.includes("192.168.")) {
+    // If we have a base URL, normally we'd extract the IP, but since the user
+    // specified .80 for Ollama and .188 for the backend, we should just use .80
+    origin = "http://192.168.110.80:11434";
   }
 
-  return `${origin}${path.startsWith('/') ? '' : '/'}${path}`;
+  const finalUrl = `${origin}${path.startsWith('/') ? '' : '/'}${path}`;
+  console.warn(`[getOllamaUrl] Resolved to: ${finalUrl}`);
+  return finalUrl;
 }
 
 export async function apiFetch(
