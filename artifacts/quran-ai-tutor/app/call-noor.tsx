@@ -13,8 +13,10 @@ import {
   Alert,
   Animated,
   Easing,
+  Modal,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -55,6 +57,68 @@ interface Turn {
   content: string;
 }
 
+// ─── Reusable full-text popup ─────────────────────────────────────────────────
+function TranscriptModal({
+  visible,
+  label,
+  text,
+  onClose,
+}: {
+  visible: boolean;
+  label: string;
+  text: string;
+  onClose: () => void;
+}) {
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <Pressable style={modalStyles.overlay} onPress={onClose}>
+        <Pressable style={modalStyles.sheet} onPress={() => {}}>
+          <Text style={modalStyles.label}>{label}</Text>
+          <ScrollView style={modalStyles.scroll} showsVerticalScrollIndicator={false}>
+            <Text style={modalStyles.body} selectable>{text}</Text>
+          </ScrollView>
+          <Pressable style={modalStyles.closeBtn} onPress={onClose}>
+            <Text style={modalStyles.closeTxt}>Close</Text>
+          </Pressable>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
+const modalStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    justifyContent: "flex-end",
+  },
+  sheet: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 24,
+    maxHeight: "75%",
+  },
+  label: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+    color: "#888",
+    marginBottom: 12,
+  },
+  scroll: { marginBottom: 16 },
+  body: { fontSize: 16, fontWeight: "400", lineHeight: 26, color: "#111" },
+  closeBtn: {
+    alignSelf: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 32,
+    backgroundColor: "#f3f4f6",
+    borderRadius: 12,
+  },
+  closeTxt: { fontSize: 14, fontWeight: "600", color: "#333" },
+});
+
 export default function CallNoorScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
@@ -70,6 +134,8 @@ export default function CallNoorScreen() {
   const [lastAiSaid, setLastAiSaid] = useState<string>("");
   // Explicit language toggle: null = auto-detect, "ur" = Urdu, "ar" = Arabic
   const [forceLang, setForceLang] = useState<"ur" | "ar" | null>(null);
+  // Transcript popup
+  const [modal, setModal] = useState<{ label: string; text: string } | null>(null);
   // Available TTS voices — loaded once on mount
   const availableVoicesRef = useRef<Speech.Voice[]>([]);
 
@@ -404,13 +470,17 @@ export default function CallNoorScreen() {
       return (enhanced ?? voices.find((v) => v.language.toLowerCase().startsWith(prefix)))?.identifier;
     };
 
+    const voiceInstallHint: Record<string, string> = {
+      "ur-PK": "Urdu voice not installed. Go to Settings → Accessibility → Spoken Content → Voices → Urdu.",
+      "hi-IN": "Hindi voice not installed. Go to Settings → Accessibility → Spoken Content → Voices → Hindi.",
+      "ar-SA": "Arabic voice not installed. Go to Settings → Accessibility → Spoken Content → Voices → Arabic.",
+    };
+
     const trySpeak = (lang: string, fallback?: string) => {
       const voiceId = findVoiceId(lang);
       if (!voiceId && lang !== "en-US") {
-        // No voice pack installed for this language — warn once then speak English
-        if (lang === "ur-PK") {
-          setError("Urdu voice not installed. Go to Settings → Accessibility → Spoken Content → Voices → Urdu to download it.");
-        }
+        const hint = voiceInstallHint[lang];
+        if (hint) setError(hint);
         trySpeak("en-US");
         return;
       }
@@ -552,6 +622,14 @@ export default function CallNoorScreen() {
             {forceLang === "ur" ? "اردو" : forceLang === "ar" ? "عربي" : "Auto"}
           </Text>
         </Pressable>
+        <Pressable
+          style={[styles.headerBtn, { marginLeft: 4 }]}
+          onPress={() => router.push("/profile")}
+          hitSlop={10}
+          accessibilityLabel="Settings"
+        >
+          <Feather name="settings" size={20} color={colors.foreground} />
+        </Pressable>
       </View>
 
       {/* Caller identity */}
@@ -612,9 +690,9 @@ export default function CallNoorScreen() {
       {/* Transcript preview */}
       <View style={styles.transcript}>
         {lastUserSaid ? (
-          <>
+          <Pressable onPress={() => setModal({ label: "You said", text: lastUserSaid })}>
             <Text style={[styles.transcriptLabel, { color: colors.mutedForeground }]}>
-              You said
+              You said  <Text style={{ fontSize: 10 }}>↗</Text>
             </Text>
             <Text
               style={[styles.transcriptBody, { color: colors.foreground }]}
@@ -622,7 +700,7 @@ export default function CallNoorScreen() {
             >
               {lastUserSaid}
             </Text>
-          </>
+          </Pressable>
         ) : (
           <Text style={[styles.transcriptHint, { color: colors.mutedForeground }]}>
             Assalamu Alaikum{user?.name ? `, ${user.name}` : ""}. Ask Noor anything —
@@ -630,11 +708,12 @@ export default function CallNoorScreen() {
           </Text>
         )}
         {!!lastAiSaid && (
-          <>
-            <Text
-              style={[styles.transcriptLabel, { color: colors.mutedForeground, marginTop: 14 }]}
-            >
-              Noor replied
+          <Pressable
+            style={{ marginTop: 14 }}
+            onPress={() => setModal({ label: "Noor replied", text: lastAiSaid })}
+          >
+            <Text style={[styles.transcriptLabel, { color: colors.mutedForeground }]}>
+              Noor replied  <Text style={{ fontSize: 10 }}>↗</Text>
             </Text>
             <Text
               style={[styles.transcriptBody, { color: colors.foreground }]}
@@ -642,9 +721,16 @@ export default function CallNoorScreen() {
             >
               {lastAiSaid}
             </Text>
-          </>
+          </Pressable>
         )}
       </View>
+
+      <TranscriptModal
+        visible={!!modal}
+        label={modal?.label ?? ""}
+        text={modal?.text ?? ""}
+        onClose={() => setModal(null)}
+      />
 
       {/* Hang-up */}
       <View style={[styles.footer, { paddingBottom: botPad }]}>
