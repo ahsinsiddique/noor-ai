@@ -389,7 +389,7 @@ export function detectTtsLanguage(text: string): TtsLanguage {
   }
   if (letters === 0) return "en";
   if (devanagari / letters >= 0.2) return "hi";
-  if (arabic / letters >= 0.25) return "ur";
+  if (arabic / letters >= 0.55) return "ur";
   return "en";
 }
 

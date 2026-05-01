@@ -2,6 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import {
   AudioModule,
   RecordingPresets,
+  setAudioModeAsync,
   useAudioRecorder,
 } from "expo-audio";
 import * as Haptics from "expo-haptics";
@@ -69,6 +70,8 @@ export default function CallNoorScreen() {
   const [lastAiSaid, setLastAiSaid] = useState<string>("");
   // Explicit language toggle: null = auto-detect, "ur" = Urdu, "ar" = Arabic
   const [forceLang, setForceLang] = useState<"ur" | "ar" | null>(null);
+  // Available TTS voices — loaded once on mount
+  const availableVoicesRef = useRef<Speech.Voice[]>([]);
 
   // Ring-animation for the orb while recording/speaking
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -91,6 +94,13 @@ export default function CallNoorScreen() {
 
   // Start the call-ended cleanup only once, even if effects fire twice.
   const endedRef = useRef(false);
+
+  // ─── Load available TTS voices once ────────────────────────────────────────
+  useEffect(() => {
+    Speech.getAvailableVoicesAsync()
+      .then((voices) => { availableVoicesRef.current = voices; })
+      .catch(() => {});
+  }, []);
 
   // ─── Pulse / timer ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -210,6 +220,7 @@ export default function CallNoorScreen() {
       return;
     }
     try {
+      await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
       await audioRecorder.prepareToRecordAsync();
       audioRecorder.record();
       setState("recording");
@@ -253,6 +264,8 @@ export default function CallNoorScreen() {
         formData.append("file", blob, "call.webm");
       } else {
         await audioRecorder.stop();
+        // Restore playback mode so TTS works after recording on iOS
+        await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
         await new Promise<void>((r) => setTimeout(r, 80));
         const uri = audioRecorder.uri;
         if (!uri) throw new Error("Recording failed — no file saved");
@@ -372,21 +385,49 @@ export default function CallNoorScreen() {
 
     // ─── 4. Speak the reply ───────────────────────────────────────────────────
     setState("speaking");
-    // forceLang overrides auto-detection so the TTS voice always matches what the user chose.
     const forcedLocale = forceLang === "ur" ? "ur-PK" : forceLang === "ar" ? "ar-SA" : null;
     const aiLang = detectTtsLanguage(aiText);
-    const detectedLocale = aiLang !== "en" ? (aiLang === "hi" ? "hi-IN" : "ur-PK")
-      : detectTtsLanguage(transcript) === "ur" ? "ur-PK"
-      : "en-US";
+    const detectedLocale =
+      aiLang === "ur" ? "ur-PK" :
+      aiLang === "hi" ? "hi-IN" :
+      "en-US";
     const locale = forcedLocale ?? detectedLocale;
-    Speech.speak(aiText, {
-      language: locale,
-      rate: 0.95,
-      pitch: 0.9,
-      onDone: () => setState((s) => (s === "speaking" ? "idle" : s)),
-      onStopped: () => setState((s) => (s === "speaking" ? "idle" : s)),
-      onError: () => setState("idle"),
-    });
+
+    // Find best matching voice by language prefix (e.g. "ur" matches "ur-PK")
+    const findVoiceId = (lang: string): string | undefined => {
+      const prefix = lang.split("-")[0].toLowerCase();
+      const voices = availableVoicesRef.current;
+      // Prefer enhanced quality, then any matching language
+      const enhanced = voices.find(
+        (v) => v.language.toLowerCase().startsWith(prefix) && v.quality === "Enhanced",
+      );
+      return (enhanced ?? voices.find((v) => v.language.toLowerCase().startsWith(prefix)))?.identifier;
+    };
+
+    const trySpeak = (lang: string, fallback?: string) => {
+      const voiceId = findVoiceId(lang);
+      if (!voiceId && lang !== "en-US") {
+        // No voice pack installed for this language — warn once then speak English
+        if (lang === "ur-PK") {
+          setError("Urdu voice not installed. Go to Settings → Accessibility → Spoken Content → Voices → Urdu to download it.");
+        }
+        trySpeak("en-US");
+        return;
+      }
+      Speech.speak(aiText, {
+        language: lang,
+        ...(voiceId ? { voice: voiceId } : {}),
+        rate: 0.95,
+        pitch: 0.9,
+        onDone: () => setState((s) => (s === "speaking" ? "idle" : s)),
+        onStopped: () => setState((s) => (s === "speaking" ? "idle" : s)),
+        onError: () => {
+          if (fallback) trySpeak(fallback);
+          else setState("idle");
+        },
+      });
+    };
+    trySpeak(locale, locale !== "en-US" ? "en-US" : undefined);
   }, [audioRecorder, provider, modelId, sect, subSchool, madhhab, forceLang]);
 
   // ─── Single "orb" button handles every state ───────────────────────────────
