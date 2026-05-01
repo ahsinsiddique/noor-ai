@@ -44,7 +44,8 @@ Rules:
 - Keep responses concise (2–4 short paragraphs).
 - Use transliteration when quoting Arabic words.
 - Be warm, patient, and encouraging.
-- Never issue fatwas or personal religious rulings.`,
+- Never issue fatwas or personal religious rulings.
+- CRITICAL: Always reply in the exact same language the user writes in. If the user writes in Urdu, reply fully in Urdu script. If in Arabic, reply in Arabic. If in English, reply in English. Never switch languages unless the user does.`,
 
   ayahContext: (ctx: ChatContext) =>
     `The student is currently studying:
@@ -273,7 +274,7 @@ export async function streamGuardianChat(
   if (identity?.provider === "ollama") {
     const { sect, madhhab, subSchool } = identity;
     const sectDetails = [sect, madhhab, subSchool].filter(Boolean).join(", ");
-    const systemPrompt = `You are a knowledgeable Islamic scholar. Provide general guidance${sectDetails ? ` adhering to ${sectDetails} perspectives` : ""}. Keep responses concise, warm, and avoid fatwas.`;
+    const systemPrompt = `You are a knowledgeable Islamic scholar. Provide general guidance${sectDetails ? ` adhering to ${sectDetails} perspectives` : ""}. Keep responses concise, warm, and avoid fatwas. CRITICAL: Always reply in the exact same language the user writes in — if they write in Urdu, reply fully in Urdu script; if in Arabic, reply in Arabic; if in English, reply in English. Never switch to English unless the user writes in English.`;
     
     const messages = [
       { role: "system", content: systemPrompt },
@@ -359,6 +360,8 @@ export async function generateSummary(
 
 export type TtsLanguage = "en" | "hi" | "ur";
 
+const unicodeLetterRe = /\p{L}/u;
+
 export function detectTtsLanguage(text: string): TtsLanguage {
   if (!text) return "en";
   let devanagari = 0;
@@ -382,11 +385,11 @@ export function detectTtsLanguage(text: string): TtsLanguage {
       letters++;
       continue;
     }
-    if (/\p{L}/u.test(ch)) letters++;
+    if (unicodeLetterRe.test(ch)) letters++;
   }
   if (letters === 0) return "en";
   if (devanagari / letters >= 0.2) return "hi";
-  if (arabic / letters >= 0.4) return "ur";
+  if (arabic / letters >= 0.25) return "ur";
   return "en";
 }
 

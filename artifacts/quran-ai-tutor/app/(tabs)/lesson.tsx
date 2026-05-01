@@ -7,6 +7,7 @@ import * as Speech from "expo-speech";
 import React, {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -117,6 +118,97 @@ const SUGGESTIONS = [
   "How should I recite this correctly?",
 ];
 
+// ─── Memoized message bubble — prevents N re-renders during streaming ─────────
+
+interface MsgBubbleProps {
+  msg: ChatMsg;
+  prevTimestamp: number | undefined;
+  isLast: boolean;
+  isWaiting: boolean;
+  isSpeaking: boolean;
+  teacherEmoji: string;
+  teacherColor: string;
+  accentColor: string;
+  primaryColor: string;
+  cardColor: string;
+  borderColor: string;
+  foregroundColor: string;
+  mutedColor: string;
+  onSpeak: (msg: ChatMsg) => void;
+}
+
+const MessageBubble = React.memo(function MessageBubble({
+  msg, prevTimestamp, isLast, isWaiting, isSpeaking,
+  teacherEmoji, teacherColor, accentColor,
+  primaryColor, cardColor, borderColor, foregroundColor, mutedColor,
+  onSpeak,
+}: MsgBubbleProps) {
+  const isUser = msg.role === "user";
+  const showTime = !prevTimestamp || msg.timestamp - prevTimestamp > 5 * 60 * 1000;
+
+  return (
+    <React.Fragment>
+      {showTime && (
+        <Text style={[styles.timeStamp, { color: mutedColor }]}>
+          {formatTime(msg.timestamp)}
+        </Text>
+      )}
+      <View style={[styles.bubbleRow, isUser ? styles.rowRight : styles.rowLeft]}>
+        {!isUser && (
+          <View style={[styles.avatar, { backgroundColor: teacherColor }]}>
+            <Text style={styles.avatarIcon}>{teacherEmoji}</Text>
+          </View>
+        )}
+        <View style={[styles.bubbleWrap, isUser ? styles.wrapRight : styles.wrapLeft]}>
+          <View style={[
+            styles.bubble,
+            isUser
+              ? [styles.bubbleUser, { backgroundColor: primaryColor }]
+              : [styles.bubbleAI, { backgroundColor: cardColor, borderColor }],
+          ]}>
+            {isWaiting && isLast ? (
+              <TypingDots color={primaryColor} />
+            ) : msg.content ? (
+              <Text style={[styles.bubbleText, { color: isUser ? "#fff" : foregroundColor }]}>
+                {msg.content}
+              </Text>
+            ) : (
+              <ActivityIndicator size="small" color={primaryColor} style={{ margin: 4 }} />
+            )}
+          </View>
+          <View style={[styles.bubbleFooter, isUser ? styles.footerRight : styles.footerLeft]}>
+            {!isUser && msg.content && (
+              <Pressable
+                onPress={() => onSpeak(msg)}
+                style={[styles.ttsBtn, { backgroundColor: isSpeaking ? teacherColor : cardColor }]}
+              >
+                <Feather name={isSpeaking ? "volume-x" : "volume-2"} size={11} color={isSpeaking ? "#fff" : primaryColor} />
+                <Text style={[styles.ttsBtnText, { color: isSpeaking ? "#fff" : primaryColor }]}>
+                  {isSpeaking ? "Stop" : "Listen"}
+                </Text>
+              </Pressable>
+            )}
+            <Text style={[styles.msgTime, { color: mutedColor }]}>
+              {formatTime(msg.timestamp)}{isUser && "  ✓✓"}
+            </Text>
+          </View>
+        </View>
+        {isUser && (
+          <View style={[styles.avatar, { backgroundColor: accentColor }]}>
+            <Feather name="user" size={13} color="#fff" />
+          </View>
+        )}
+      </View>
+    </React.Fragment>
+  );
+}, (prev, next) =>
+  prev.msg.content === next.msg.content &&
+  prev.isLast === next.isLast &&
+  prev.isWaiting === next.isWaiting &&
+  prev.isSpeaking === next.isSpeaking &&
+  prev.teacherColor === next.teacherColor
+);
+
 // ─── Main screen ─────────────────────────────────────────────────────────────
 
 export default function LessonScreen() {
@@ -149,13 +241,17 @@ export default function LessonScreen() {
   const inputRef = useRef<TextInput>(null);
   const prevAyahRef = useRef<string>("");
   const voiceTriggeredRef = useRef(false);
+  // Always-current messages ref — lets sendMessage read latest messages without
+  // being in its dep array (which would recreate it on every streaming delta).
+  const messagesRef = useRef<ChatMsg[]>([]);
+  messagesRef.current = messages;
 
   // ─── Live API data ────────────────────────────────────────────────────
   const { data: surahList } = useSurahList();
   const { data: liveAyah, isLoading: ayahLoading, error: ayahError } = useAyah(surahId, ayahNumber, translationEdition);
 
   // Resolve ayah data (live first, static fallback)
-  const staticFallback = (() => {
+  const staticFallback = useMemo(() => {
     const s = staticSurahs.find((s) => s.id === surahId);
     const a = s?.ayahs.find((a) => a.number === ayahNumber);
     if (s && a) {
@@ -171,7 +267,7 @@ export default function LessonScreen() {
       };
     }
     return null;
-  })();
+  }, [surahId, ayahNumber]);
 
   const ayah = liveAyah ?? staticFallback;
   const surahMeta = surahList?.find((s) => s.number === surahId);
@@ -258,6 +354,12 @@ export default function LessonScreen() {
     });
   }, [speakingId, teacher.ttsRate, teacher.ttsPitch]);
 
+  // Stable ref so MessageBubble.onSpeak never changes identity — prevents
+  // all bubbles re-rendering when speakingId changes.
+  const speakRef = useRef(speakMessage);
+  speakRef.current = speakMessage;
+  const handleSpeak = useCallback((msg: ChatMsg) => speakRef.current(msg), []);
+
   // ─── Recite ayah button (Arabic audio + English TTS) ─────────────────
 
   const isRecitePlaying = playerStatus.playing;
@@ -343,7 +445,7 @@ export default function LessonScreen() {
         userLevel: user?.level ?? "Beginner",
       };
 
-      const history = messages.map((m) => ({ role: m.role, content: m.content }));
+      const history = messagesRef.current.map((m) => ({ role: m.role, content: m.content }));
 
       await streamChat(
         {
@@ -396,7 +498,7 @@ export default function LessonScreen() {
     } finally {
       setStreaming(false);
     }
-  }, [input, streaming, messages, ayah, surahName, user?.level, autoPlay, teacher, currentSession, addSessionMessage]);
+  }, [input, streaming, ayah, surahName, user?.level, autoPlay, teacher, currentSession, addSessionMessage]);
 
   // ─── Ayah navigation ──────────────────────────────────────────────────
 
@@ -625,81 +727,25 @@ export default function LessonScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {messages.map((msg, idx) => {
-            const isUser = msg.role === "user";
-            const prevMsg = messages[idx - 1];
-            const showTime =
-              !prevMsg || msg.timestamp - prevMsg.timestamp > 5 * 60 * 1000;
-
-            return (
-              <React.Fragment key={msg.id}>
-                {showTime && (
-                  <Text style={[styles.timeStamp, { color: colors.mutedForeground }]}>
-                    {formatTime(msg.timestamp)}
-                  </Text>
-                )}
-                <View style={[styles.bubbleRow, isUser ? styles.rowRight : styles.rowLeft]}>
-                  {!isUser && (
-                    <View style={[styles.avatar, { backgroundColor: teacher.color }]}>
-                      <Text style={styles.avatarIcon}>{teacher.emoji}</Text>
-                    </View>
-                  )}
-
-                  <View style={[styles.bubbleWrap, isUser ? styles.wrapRight : styles.wrapLeft]}>
-                    <View
-                      style={[
-                        styles.bubble,
-                        isUser
-                          ? [styles.bubbleUser, { backgroundColor: colors.primary }]
-                          : [styles.bubbleAI, { backgroundColor: colors.card, borderColor: colors.border }],
-                      ]}
-                    >
-                      {isWaiting && msg.id === lastMsg?.id ? (
-                        <TypingDots color={colors.primary} />
-                      ) : msg.content ? (
-                        <Text style={[styles.bubbleText, { color: isUser ? "#fff" : colors.foreground }]}>
-                          {msg.content}
-                        </Text>
-                      ) : (
-                        <ActivityIndicator size="small" color={colors.primary} style={{ margin: 4 }} />
-                      )}
-                    </View>
-
-                    <View style={[styles.bubbleFooter, isUser ? styles.footerRight : styles.footerLeft]}>
-                      {!isUser && msg.content && (
-                        <Pressable
-                          onPress={() => speakMessage(msg)}
-                          style={[
-                            styles.ttsBtn,
-                            { backgroundColor: speakingId === msg.id ? teacher.color : colors.secondary },
-                          ]}
-                        >
-                          <Feather
-                            name={speakingId === msg.id ? "volume-x" : "volume-2"}
-                            size={11}
-                            color={speakingId === msg.id ? "#fff" : colors.primary}
-                          />
-                          <Text style={[styles.ttsBtnText, { color: speakingId === msg.id ? "#fff" : colors.primary }]}>
-                            {speakingId === msg.id ? "Stop" : "Listen"}
-                          </Text>
-                        </Pressable>
-                      )}
-                      <Text style={[styles.msgTime, { color: colors.mutedForeground }]}>
-                        {formatTime(msg.timestamp)}
-                        {isUser && "  ✓✓"}
-                      </Text>
-                    </View>
-                  </View>
-
-                  {isUser && (
-                    <View style={[styles.avatar, { backgroundColor: colors.accent }]}>
-                      <Feather name="user" size={13} color="#fff" />
-                    </View>
-                  )}
-                </View>
-              </React.Fragment>
-            );
-          })}
+          {messages.map((msg, idx) => (
+            <MessageBubble
+              key={msg.id}
+              msg={msg}
+              prevTimestamp={messages[idx - 1]?.timestamp}
+              isLast={msg.id === lastMsg?.id}
+              isWaiting={isWaiting}
+              isSpeaking={speakingId === msg.id}
+              teacherEmoji={teacher.emoji}
+              teacherColor={teacher.color}
+              accentColor={colors.accent ?? "#f59e0b"}
+              primaryColor={colors.primary}
+              cardColor={colors.card}
+              borderColor={colors.border}
+              foregroundColor={colors.foreground}
+              mutedColor={colors.mutedForeground}
+              onSpeak={handleSpeak}
+            />
+          ))}
 
           {isWaiting && (
             <View style={[styles.bubbleRow, styles.rowLeft]}>

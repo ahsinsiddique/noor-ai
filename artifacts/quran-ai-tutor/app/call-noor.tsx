@@ -67,6 +67,8 @@ export default function CallNoorScreen() {
   const [seconds, setSeconds] = useState(0);
   const [lastUserSaid, setLastUserSaid] = useState<string>("");
   const [lastAiSaid, setLastAiSaid] = useState<string>("");
+  // Explicit language toggle: null = auto-detect, "ur" = Urdu, "ar" = Arabic
+  const [forceLang, setForceLang] = useState<"ur" | "ar" | null>(null);
 
   // Ring-animation for the orb while recording/speaking
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -261,6 +263,10 @@ export default function CallNoorScreen() {
           name: "call.m4a",
         } as unknown as Blob);
       }
+      // Hint the Whisper server to transcribe (not translate) in the chosen language.
+      // Most faster-whisper / whisper FastAPI servers accept these optional fields.
+      formData.append("task", "transcribe");
+      if (forceLang) formData.append("language", forceLang);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setError(msg);
@@ -309,11 +315,21 @@ export default function CallNoorScreen() {
     const ctrl = new AbortController();
     abortRef.current = ctrl;
 
+    // If forceLang is set, or transcript has no non-Latin chars but user expects Urdu,
+    // inject an explicit language instruction so even a coding-focused model complies.
+    const langCues: Record<string, string> = {
+      ur: "[IMPORTANT: Reply ONLY in Urdu script (اردو). Do not use English or Roman Urdu.]\n",
+      ar: "[IMPORTANT: Reply ONLY in Arabic script (العربية). Do not use English.]\n",
+    };
+    const messageForAI = forceLang
+      ? langCues[forceLang] + transcript
+      : transcript;
+
     let aiText = "";
     try {
       await streamGuardianChat(
         {
-          message: transcript,
+          message: messageForAI,
           history: historyRef.current,
           identity: {
             provider,
@@ -356,8 +372,13 @@ export default function CallNoorScreen() {
 
     // ─── 4. Speak the reply ───────────────────────────────────────────────────
     setState("speaking");
-    const lang = detectTtsLanguage(aiText);
-    const locale = lang === "hi" ? "hi-IN" : lang === "ur" ? "ur-PK" : "en-US";
+    // forceLang overrides auto-detection so the TTS voice always matches what the user chose.
+    const forcedLocale = forceLang === "ur" ? "ur-PK" : forceLang === "ar" ? "ar-SA" : null;
+    const aiLang = detectTtsLanguage(aiText);
+    const detectedLocale = aiLang !== "en" ? (aiLang === "hi" ? "hi-IN" : "ur-PK")
+      : detectTtsLanguage(transcript) === "ur" ? "ur-PK"
+      : "en-US";
+    const locale = forcedLocale ?? detectedLocale;
     Speech.speak(aiText, {
       language: locale,
       rate: 0.95,
@@ -366,7 +387,7 @@ export default function CallNoorScreen() {
       onStopped: () => setState((s) => (s === "speaking" ? "idle" : s)),
       onError: () => setState("idle"),
     });
-  }, [audioRecorder, provider, modelId, sect, subSchool, madhhab]);
+  }, [audioRecorder, provider, modelId, sect, subSchool, madhhab, forceLang]);
 
   // ─── Single "orb" button handles every state ───────────────────────────────
   const handleOrbPress = useCallback(() => {
@@ -477,7 +498,19 @@ export default function CallNoorScreen() {
             {providerMeta.name} · {modelMeta.name}
           </Text>
         </View>
-        <View style={styles.headerBtn} />
+        {/* Language toggle — cycles: auto → ur → ar → auto */}
+        <Pressable
+          style={[styles.headerBtn, styles.langToggle, {
+            backgroundColor: forceLang ? colors.primary : colors.secondary,
+          }]}
+          onPress={() => setForceLang((l) => l === null ? "ur" : l === "ur" ? "ar" : null)}
+          hitSlop={10}
+          accessibilityLabel={`Language: ${forceLang ?? "auto"}`}
+        >
+          <Text style={[styles.langToggleText, { color: forceLang ? "#fff" : colors.mutedForeground }]}>
+            {forceLang === "ur" ? "اردو" : forceLang === "ar" ? "عربي" : "Auto"}
+          </Text>
+        </Pressable>
       </View>
 
       {/* Caller identity */}
@@ -600,6 +633,8 @@ const styles = StyleSheet.create({
     paddingBottom: 6,
   },
   headerBtn: { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
+  langToggle: { borderRadius: 10, paddingHorizontal: 8 },
+  langToggleText: { fontSize: 12, fontWeight: "700" },
   title: { fontSize: 16, fontWeight: "700" },
   subtitle: { fontSize: 12, fontWeight: "500", marginTop: 2 },
 
