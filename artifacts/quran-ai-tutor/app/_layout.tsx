@@ -65,6 +65,7 @@ function RootLayoutNav() {
         }}
       />
       <Stack.Screen name="profile" options={{ headerShown: false }} />
+      <Stack.Screen name="simple" options={{ headerShown: false }} />
     </Stack>
   );
 }

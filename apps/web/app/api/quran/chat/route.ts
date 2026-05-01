@@ -36,6 +36,7 @@ export const dynamic = "force-dynamic";
 interface ChatRequestBody {
   message?: string;
   mode?: "guardian";
+  voiceMode?: boolean;
   surahName?: string;
   surahArabic?: string;
   ayahNumber?: number;
@@ -74,6 +75,7 @@ export async function POST(req: Request) {
           sect,
           madhhab: body.madhhab,
           subSchool: body.subSchool,
+          voiceMode: body.voiceMode === true,
         }),
       },
       ...(body.history ?? []),

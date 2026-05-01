@@ -1,17 +1,12 @@
+import { AudioModule } from "expo-audio";
 import { Feather } from "@expo/vector-icons";
-import {
-  AudioModule,
-  RecordingPresets,
-  setAudioModeAsync,
-  useAudioRecorder,
-} from "expo-audio";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
-import * as Speech from "expo-speech";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
   Animated,
+  Dimensions,
   Easing,
   Modal,
   Platform,
@@ -29,35 +24,27 @@ import { useMadhhab } from "@/contexts/MadhhabContext";
 import { useModel } from "@/contexts/ModelContext";
 import { useSect } from "@/contexts/SectContext";
 import { useColors } from "@/hooks/useColors";
-import { getWhisperUrl } from "@/services/apiClient";
-import { getAccessToken } from "@/lib/supabase";
-import { detectTtsLanguage, streamGuardianChat } from "@/services/aiService";
+import { useVoiceTurn } from "@/hooks/useVoiceTurn";
+import { streamGuardianChat } from "@/services/aiService";
 
 /**
- * Call Noor — a hands-free, phone-call-style experience for Noor AI Scholar.
+ * Call Noor — hands-free phone-call-style experience for Noor AI Scholar.
  *
- * Flow per turn (native / iOS / Android):
- *   idle → user taps orb → recording → user taps orb again → transcribing
- *   → streaming (AI replies) → speaking (TTS plays reply) → idle
- *
- * Flow per turn (web):
- *   Same as native but uses MediaRecorder. Users can still tap the orb
- *   to end the turn early.
- *
- * At any point during "speaking" the user can tap the orb to barge in —
- * TTS stops immediately and a new recording starts. This is the main
- * UX fix for the old "not working well" voice experience: no more
- * juggling mic + send + listen buttons.
+ * Voice pipeline delegated to useVoiceTurn:
+ *   idle → record → Whisper transcription → onTranscript callback
+ *   onTranscript → AI stream → speakText (TTS) → idle
  */
 
 type CallState = "idle" | "recording" | "transcribing" | "thinking" | "speaking";
+
+const WINDOW_HEIGHT = Dimensions.get("window").height;
 
 interface Turn {
   role: "user" | "assistant";
   content: string;
 }
 
-// ─── Reusable full-text popup ─────────────────────────────────────────────────
+// ─── Full-text popup ──────────────────────────────────────────────────────────
 function TranscriptModal({
   visible,
   label,
@@ -75,7 +62,7 @@ function TranscriptModal({
         <Pressable style={modalStyles.sheet} onPress={() => {}}>
           <Text style={modalStyles.label}>{label}</Text>
           <ScrollView
-            style={modalStyles.scroll}
+            style={[modalStyles.scroll, { maxHeight: WINDOW_HEIGHT * 0.5 }]}
             contentContainerStyle={{ paddingBottom: 4 }}
             showsVerticalScrollIndicator
             bounces
@@ -103,7 +90,6 @@ const modalStyles = StyleSheet.create({
     borderTopRightRadius: 20,
     padding: 24,
     maxHeight: "75%",
-    flexShrink: 1,
   },
   label: {
     fontSize: 11,
@@ -113,7 +99,7 @@ const modalStyles = StyleSheet.create({
     color: "#888",
     marginBottom: 12,
   },
-  scroll: { flex: 1, marginBottom: 16 },
+  scroll: { marginBottom: 16 },
   body: { fontSize: 16, fontWeight: "400", lineHeight: 26, color: "#111" },
   closeBtn: {
     alignSelf: "center",
@@ -133,282 +119,42 @@ export default function CallNoorScreen() {
   const { sect, subSchool } = useSect();
   const { provider, modelId, providerMeta, modelMeta } = useModel();
 
-  const [state, setState] = useState<CallState>("idle");
   const [error, setError] = useState<string | null>(null);
-  const [seconds, setSeconds] = useState(0);
   const [lastUserSaid, setLastUserSaid] = useState<string>("");
   const [lastAiSaid, setLastAiSaid] = useState<string>("");
-  // Explicit language toggle: null = auto-detect, "ur" = Urdu, "ar" = Arabic
   const [forceLang, setForceLang] = useState<"ur" | "ar" | null>(null);
-  // Transcript popup
   const [modal, setModal] = useState<{ label: string; text: string } | null>(null);
-  // Available TTS voices — loaded once on mount
-  const availableVoicesRef = useRef<Speech.Voice[]>([]);
+  const [thinking, setThinking] = useState(false);
 
-  // Ring-animation for the orb while recording/speaking
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // Native recorder
-  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
-
-  // Web recorder
-  const webRecorderRef = useRef<MediaRecorder | null>(null);
-  const webChunksRef = useRef<Blob[]>([]);
-  const webStreamRef = useRef<MediaStream | null>(null);
-
-  // Conversation memory so each turn has context. We keep up to ~20 turns
-  // which comfortably fits in the model context for any provider.
   const historyRef = useRef<Turn[]>([]);
-
-  // Abort the in-flight AI stream when the user barges in or hangs up.
   const abortRef = useRef<AbortController | null>(null);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
-  // Start the call-ended cleanup only once, even if effects fire twice.
-  const endedRef = useRef(false);
+  // ─── Transcript handler (called by useVoiceTurn after Whisper) ───────────
+  // Stored in a ref so useVoiceTurn always gets the latest version without
+  // needing it in the hook's dependency array.
+  const handleTranscriptRef = useRef<(t: string) => void>(() => {});
 
-  // ─── Load available TTS voices once ────────────────────────────────────────
-  useEffect(() => {
-    Speech.getAvailableVoicesAsync()
-      .then((voices) => { availableVoicesRef.current = voices; })
-      .catch(() => {});
-  }, []);
+  const { state: voiceState, seconds, clearError, startRecording, endTurn, speakText, stopSpeaking } = useVoiceTurn({
+    forceLang,
+    onTranscript: (t) => handleTranscriptRef.current(t),
+    onError: setError,
+  });
 
-  // ─── Pulse / timer ─────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (state === "recording") {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1.35,
-            duration: 700,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 700,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-        ]),
-      ).start();
-      timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
-    } else if (state === "speaking") {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1.18,
-            duration: 1000,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 1000,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-        ]),
-      ).start();
-    } else {
-      pulseAnim.stopAnimation();
-      pulseAnim.setValue(1);
-    }
-
-    if (state !== "recording") {
-      if (timerRef.current) clearInterval(timerRef.current);
-      setSeconds(0);
-    }
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [state]);
-
-  // ─── Cleanup on unmount ────────────────────────────────────────────────────
-  useEffect(() => {
-    return () => {
-      if (endedRef.current) return;
-      endedRef.current = true;
-      abortRef.current?.abort();
-      Speech.stop();
-      try {
-        if (webStreamRef.current) {
-          webStreamRef.current.getTracks().forEach((t) => t.stop());
-          webStreamRef.current = null;
-        }
-      } catch {}
-    };
-  }, []);
-
-  // ─── Start recording (per platform) ────────────────────────────────────────
-  const startRecording = useCallback(async () => {
-    setError(null);
-
-    // Stop any TTS that was playing (barge-in).
-    Speech.stop();
+  // Assign every render — captures fresh closures (speakText, forceLang, etc.)
+  // without adding them as hook dependencies.
+  handleTranscriptRef.current = async (transcript: string) => {
+    setLastUserSaid(transcript);
+    setThinking(true);
     abortRef.current?.abort();
-
-    if (Platform.OS === "web") {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        webStreamRef.current = stream;
-        const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
-          ? "audio/webm;codecs=opus"
-          : "audio/webm";
-        webChunksRef.current = [];
-        const rec = new MediaRecorder(stream, mimeType ? { mimeType } : {});
-        rec.ondataavailable = (e) => {
-          if (e.data.size > 0) webChunksRef.current.push(e.data);
-        };
-        rec.onstop = () => {
-          // onstop fires after stopRecording() transitions state — we read the
-          // blob + send it there.
-        };
-        rec.start();
-        webRecorderRef.current = rec;
-        setState("recording");
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        if (msg.toLowerCase().includes("permission") || msg.includes("NotAllowed")) {
-          setError("Microphone permission denied");
-          Alert.alert("Permission Denied", "Microphone permission is required to use this feature.");
-        } else {
-          setError("Could not access microphone");
-          Alert.alert("Error", "Could not access microphone.");
-        }
-        setState("idle");
-      }
-      return;
-    }
-
-    // Native
-    const { granted } = await AudioModule.requestRecordingPermissionsAsync();
-    if (!granted) {
-      setError("Microphone permission denied");
-      setState("idle");
-      return;
-    }
-    try {
-      await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
-      await audioRecorder.prepareToRecordAsync();
-      audioRecorder.record();
-      setState("recording");
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(`Could not start recording: ${msg}`);
-      setState("idle");
-      Alert.alert("Recording Error", msg);
-    }
-  }, [audioRecorder]);
-
-  // ─── Stop recording + run the whole turn ───────────────────────────────────
-  const endTurn = useCallback(async () => {
-    setState("transcribing");
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-
-    const token = await getAccessToken();
-    if (!token) {
-      setError("Not signed in");
-      setState("idle");
-      return;
-    }
-
-    // ─── 1. Stop recording and build a Blob/FormData ─────────────────────────
-    let formData: FormData | null = null;
-
-    try {
-      if (Platform.OS === "web") {
-        const rec = webRecorderRef.current;
-        if (!rec) throw new Error("No active recording");
-        // Wait for the final dataavailable event after stop().
-        await new Promise<void>((resolve) => {
-          rec.onstop = () => resolve();
-          rec.stop();
-        });
-        webStreamRef.current?.getTracks().forEach((t) => t.stop());
-        webStreamRef.current = null;
-        const blob = new Blob(webChunksRef.current, { type: "audio/webm" });
-        formData = new FormData();
-        formData.append("file", blob, "call.webm");
-      } else {
-        await audioRecorder.stop();
-        // Restore playback mode so TTS works after recording on iOS
-        await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
-        await new Promise<void>((r) => setTimeout(r, 80));
-        const uri = audioRecorder.uri;
-        if (!uri) throw new Error("Recording failed — no file saved");
-        formData = new FormData();
-        formData.append("file", {
-          uri,
-          type: "audio/m4a",
-          name: "call.m4a",
-        } as unknown as Blob);
-      }
-      // Hint the Whisper server to transcribe (not translate) in the chosen language.
-      // Most faster-whisper / whisper FastAPI servers accept these optional fields.
-      formData.append("task", "transcribe");
-      if (forceLang) formData.append("language", forceLang);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg);
-      setState("idle");
-      Alert.alert("Error", msg);
-      return;
-    }
-
-    // ─── 2. Transcribe ────────────────────────────────────────────────────────
-    let transcript = "";
-    try {
-      const whisperUrl = getWhisperUrl();
-      const res = await fetch(whisperUrl, {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) {
-        const errorText = await res.text().catch(() => "");
-        throw new Error(`Transcribe ${res.status}: ${errorText}`);
-      }
-      const data = await res.json();
-      
-      if (typeof data === "string") {
-        transcript = data.trim();
-      } else {
-        transcript = (data.text || data.transcription || "").trim();
-      }
-      if (!transcript) {
-        setError("Didn't catch that — try again");
-        setState("idle");
-        return;
-      }
-      setLastUserSaid(transcript);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      const isNetwork = msg.toLowerCase().includes("fetch") || msg.toLowerCase().includes("network") || msg.toLowerCase().includes("failed to");
-      const display = isNetwork ? `Whisper server unreachable (${getWhisperUrl()})` : `Transcription failed: ${msg}`;
-      setError(display);
-      Alert.alert("Transcription Error", display);
-      setState("idle");
-      return;
-    }
-
-    // ─── 3. Stream AI reply ───────────────────────────────────────────────────
-    setState("thinking");
     const ctrl = new AbortController();
     abortRef.current = ctrl;
 
-    // If forceLang is set, or transcript has no non-Latin chars but user expects Urdu,
-    // inject an explicit language instruction so even a coding-focused model complies.
     const langCues: Record<string, string> = {
       ur: "[IMPORTANT: Reply ONLY in Urdu script (اردو). Do not use English or Roman Urdu.]\n",
       ar: "[IMPORTANT: Reply ONLY in Arabic script (العربية). Do not use English.]\n",
     };
-    const messageForAI = forceLang
-      ? langCues[forceLang] + transcript
-      : transcript;
+    const messageForAI = forceLang ? langCues[forceLang] + transcript : transcript;
 
     let aiText = "";
     try {
@@ -416,13 +162,8 @@ export default function CallNoorScreen() {
         {
           message: messageForAI,
           history: historyRef.current,
-          identity: {
-            provider,
-            model: modelId,
-            sect,
-            subSchool,
-            madhhab,
-          },
+          voiceMode: true,
+          identity: { provider, model: modelId, sect, subSchool, madhhab },
         },
         (delta) => {
           aiText += delta;
@@ -432,83 +173,72 @@ export default function CallNoorScreen() {
       );
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") {
-        // User barged in — just return to idle silently.
-        setState("idle");
+        setThinking(false);
         return;
       }
       const msg = e instanceof Error ? e.message : String(e);
       setError(`AI error: ${msg}`);
-      setState("idle");
+      setThinking(false);
       return;
     }
+
+    setThinking(false);
 
     if (!aiText.trim()) {
       setError("No response from AI — is Ollama running?");
-      setState("idle");
       return;
     }
 
-    // Remember this turn (20 messages = 10 turns)
     historyRef.current = [
       ...historyRef.current,
       { role: "user" as const, content: transcript },
       { role: "assistant" as const, content: aiText },
     ].slice(-20);
 
-    // ─── 4. Speak the reply ───────────────────────────────────────────────────
-    setState("speaking");
-    const forcedLocale = forceLang === "ur" ? "ur-PK" : forceLang === "ar" ? "ar-SA" : null;
-    const aiLang = detectTtsLanguage(aiText);
-    const detectedLocale =
-      aiLang === "ur" ? "ur-PK" :
-      aiLang === "hi" ? "hi-IN" :
-      "en-US";
-    const locale = forcedLocale ?? detectedLocale;
+    speakText(aiText);
+  };
 
-    // Find best matching voice by language prefix (e.g. "ur" matches "ur-PK")
-    const findVoiceId = (lang: string): string | undefined => {
-      const prefix = lang.split("-")[0].toLowerCase();
-      const voices = availableVoicesRef.current;
-      // Prefer enhanced quality, then any matching language
-      const enhanced = voices.find(
-        (v) => v.language.toLowerCase().startsWith(prefix) && v.quality === "Enhanced",
-      );
-      return (enhanced ?? voices.find((v) => v.language.toLowerCase().startsWith(prefix)))?.identifier;
-    };
+  // Combined UI state
+  const callState: CallState = thinking ? "thinking" : voiceState;
 
-    const voiceInstallHint: Record<string, string> = {
-      "ur-PK": "Urdu voice not installed. Go to Settings → Accessibility → Spoken Content → Voices → Urdu.",
-      "hi-IN": "Hindi voice not installed. Go to Settings → Accessibility → Spoken Content → Voices → Hindi.",
-      "ar-SA": "Arabic voice not installed. Go to Settings → Accessibility → Spoken Content → Voices → Arabic.",
-    };
+  // ─── Pulse animation ───────────────────────────────────────────────────────
+  useEffect(() => {
+    if (callState === "recording") {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, { toValue: 1.35, duration: 700, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+          Animated.timing(pulseAnim, { toValue: 1, duration: 700, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        ]),
+      ).start();
+    } else if (callState === "speaking") {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, { toValue: 1.18, duration: 1000, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+          Animated.timing(pulseAnim, { toValue: 1, duration: 1000, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        ]),
+      ).start();
+    } else {
+      pulseAnim.stopAnimation();
+      pulseAnim.setValue(1);
+    }
+  }, [callState]);
 
-    const trySpeak = (lang: string, fallback?: string) => {
-      const voiceId = findVoiceId(lang);
-      if (!voiceId && lang !== "en-US") {
-        const hint = voiceInstallHint[lang];
-        if (hint) setError(hint);
-        trySpeak("en-US");
-        return;
+  // ─── Request mic permission on mount (native only) ─────────────────────────
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+    AudioModule.requestRecordingPermissionsAsync().then(({ granted }) => {
+      if (!granted) {
+        Alert.alert(
+          "Microphone needed",
+          "Call Noor needs your microphone. Please grant permission in system settings.",
+        );
       }
-      Speech.speak(aiText, {
-        language: lang,
-        ...(voiceId ? { voice: voiceId } : {}),
-        rate: 0.95,
-        pitch: 0.9,
-        onDone: () => setState((s) => (s === "speaking" ? "idle" : s)),
-        onStopped: () => setState((s) => (s === "speaking" ? "idle" : s)),
-        onError: () => {
-          if (fallback) trySpeak(fallback);
-          else setState("idle");
-        },
-      });
-    };
-    trySpeak(locale, locale !== "en-US" ? "en-US" : undefined);
-  }, [audioRecorder, provider, modelId, sect, subSchool, madhhab, forceLang]);
+    });
+  }, []);
 
-  // ─── Single "orb" button handles every state ───────────────────────────────
+  // ─── Single orb handles every state ───────────────────────────────────────
   const handleOrbPress = useCallback(() => {
-    switch (state) {
+    switch (callState) {
       case "idle":
         void startRecording();
         return;
@@ -516,88 +246,48 @@ export default function CallNoorScreen() {
         void endTurn();
         return;
       case "speaking":
-        // Barge-in: stop AI, start new recording
-        Speech.stop();
+        stopSpeaking();
         void startRecording();
         return;
       default:
-        // transcribing/thinking — ignore taps so users can't create races
         return;
     }
-  }, [state, startRecording, endTurn]);
+  }, [callState, startRecording, endTurn, stopSpeaking]);
 
   // ─── Hang up ───────────────────────────────────────────────────────────────
   const hangUp = useCallback(() => {
-    endedRef.current = true;
     abortRef.current?.abort();
-    Speech.stop();
-    try {
-      if (webStreamRef.current) {
-        webStreamRef.current.getTracks().forEach((t) => t.stop());
-      }
-    } catch {}
-    try {
-      if (Platform.OS !== "web") audioRecorder.stop();
-    } catch {}
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(
-      () => {},
-    );
+    stopSpeaking();
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
     router.back();
-  }, [audioRecorder]);
-
-  // ─── Microphone permission helper (native first-call UX) ───────────────────
-  useEffect(() => {
-    if (Platform.OS === "web") return;
-    AudioModule.requestRecordingPermissionsAsync().then(({ granted }) => {
-      if (!granted) {
-        Alert.alert(
-          "Microphone needed",
-          "Call Noor needs your microphone to hear your questions. Please grant permission in system settings.",
-        );
-      }
-    });
-  }, []);
+  }, [stopSpeaking]);
 
   // ─── UI helpers ────────────────────────────────────────────────────────────
   const statusLabel = (() => {
-    switch (state) {
-      case "idle":
-        return "Tap the orb to speak";
-      case "recording":
-        return `Listening… ${Math.floor(seconds / 60)
-          .toString()
-          .padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
-      case "transcribing":
-        return "Transcribing…";
-      case "thinking":
-        return "Noor is thinking…";
-      case "speaking":
-        return "Noor is speaking — tap to interrupt";
+    switch (callState) {
+      case "idle": return "Tap the orb to speak";
+      case "recording": return `Listening… ${Math.floor(seconds / 60).toString().padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
+      case "transcribing": return "Transcribing…";
+      case "thinking": return "Noor is thinking…";
+      case "speaking": return "Noor is speaking — tap to interrupt";
     }
   })();
 
   const orbColor = (() => {
-    switch (state) {
-      case "recording":
-        return "#ef4444";
-      case "speaking":
-        return colors.accent ?? "#f59e0b";
+    switch (callState) {
+      case "recording": return "#ef4444";
+      case "speaking": return colors.accent ?? "#f59e0b";
       case "transcribing":
-      case "thinking":
-        return colors.mutedForeground;
-      default:
-        return colors.primary;
+      case "thinking": return colors.mutedForeground;
+      default: return colors.primary;
     }
   })();
 
   const orbIcon: keyof typeof Feather.glyphMap =
-    state === "recording"
-      ? "square"
-      : state === "speaking"
-      ? "volume-2"
-      : state === "transcribing" || state === "thinking"
-      ? "loader"
-      : "mic";
+    callState === "recording" ? "square" :
+    callState === "speaking" ? "volume-2" :
+    callState === "transcribing" || callState === "thinking" ? "loader" :
+    "mic";
 
   const topPad = insets.top + 12;
   const botPad = insets.bottom + 24;
@@ -615,7 +305,7 @@ export default function CallNoorScreen() {
             {providerMeta.name} · {modelMeta.name}
           </Text>
         </View>
-        {/* Language toggle — cycles: auto → ur → ar → auto */}
+        {/* Language toggle: auto → ur → ar → auto */}
         <Pressable
           style={[styles.headerBtn, styles.langToggle, {
             backgroundColor: forceLang ? colors.primary : colors.secondary,
@@ -646,50 +336,48 @@ export default function CallNoorScreen() {
         </Text>
       </View>
 
-      {/* Scholar avatar — state-driven breathing / listening / speaking animations */}
+      {/* Avatar */}
       <View style={styles.avatarArea}>
         <ScholarAvatar
-          state={state as AvatarState}
+          state={
+            callState === "recording" || callState === "transcribing"
+              ? "listening"
+              : (callState as AvatarState)
+          }
           variant="portrait"
           size={300}
         />
-        <Text style={[styles.statusLabel, { color: colors.mutedForeground }]}>
-          {statusLabel}
-        </Text>
+        <Text style={[styles.statusLabel, { color: colors.mutedForeground }]}>{statusLabel}</Text>
       </View>
 
-      {/* Mic pill — the tap target for start/stop talking + barge-in */}
+      {/* Mic pill */}
       <View style={styles.micArea}>
         <Pressable
           style={({ pressed }) => [
             styles.micPill,
-            {
-              backgroundColor: orbColor,
-              opacity: pressed ? 0.88 : 1,
-            },
+            { backgroundColor: orbColor, opacity: pressed ? 0.88 : 1 },
           ]}
           onPress={handleOrbPress}
-          disabled={state === "transcribing" || state === "thinking"}
+          disabled={callState === "transcribing" || callState === "thinking"}
           accessibilityLabel={statusLabel}
         >
           <Feather name={orbIcon} size={22} color="#fff" />
           <Text style={styles.micPillText}>
-            {state === "idle"
-              ? "Tap to speak"
-              : state === "recording"
-              ? "Tap to send"
-              : state === "speaking"
-              ? "Tap to interrupt"
-              : "…"}
+            {callState === "idle" ? "Tap to speak" :
+             callState === "recording" ? "Tap to send" :
+             callState === "speaking" ? "Tap to interrupt" : "…"}
           </Text>
         </Pressable>
       </View>
 
-      {/* Error banner — always visible below mic pill */}
+      {/* Error banner */}
       {!!error && (
         <View style={styles.errorBanner}>
           <Feather name="alert-circle" size={13} color="#ef4444" />
           <Text style={styles.errorBannerText} numberOfLines={3}>{error}</Text>
+          <Pressable onPress={() => { setError(null); clearError(); }} hitSlop={8}>
+            <Feather name="x" size={13} color="#ef4444" />
+          </Pressable>
         </View>
       )}
 
@@ -700,10 +388,7 @@ export default function CallNoorScreen() {
             <Text style={[styles.transcriptLabel, { color: colors.mutedForeground }]}>
               You said  <Text style={{ fontSize: 10 }}>↗</Text>
             </Text>
-            <Text
-              style={[styles.transcriptBody, { color: colors.foreground }]}
-              numberOfLines={2}
-            >
+            <Text style={[styles.transcriptBody, { color: colors.foreground }]} numberOfLines={2}>
               {lastUserSaid}
             </Text>
           </Pressable>
@@ -714,17 +399,11 @@ export default function CallNoorScreen() {
           </Text>
         )}
         {!!lastAiSaid && (
-          <Pressable
-            style={{ marginTop: 14 }}
-            onPress={() => setModal({ label: "Noor replied", text: lastAiSaid })}
-          >
+          <Pressable style={{ marginTop: 14 }} onPress={() => setModal({ label: "Noor replied", text: lastAiSaid })}>
             <Text style={[styles.transcriptLabel, { color: colors.mutedForeground }]}>
               Noor replied  <Text style={{ fontSize: 10 }}>↗</Text>
             </Text>
-            <Text
-              style={[styles.transcriptBody, { color: colors.foreground }]}
-              numberOfLines={4}
-            >
+            <Text style={[styles.transcriptBody, { color: colors.foreground }]} numberOfLines={4}>
               {lastAiSaid}
             </Text>
           </Pressable>
@@ -749,9 +428,7 @@ export default function CallNoorScreen() {
         >
           <Feather name="phone-off" size={24} color="#fff" />
         </Pressable>
-        <Text style={[styles.footerHint, { color: colors.mutedForeground }]}>
-          End call
-        </Text>
+        <Text style={[styles.footerHint, { color: colors.mutedForeground }]}>End call</Text>
       </View>
     </View>
   );

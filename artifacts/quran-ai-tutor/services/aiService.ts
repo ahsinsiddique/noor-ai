@@ -265,17 +265,29 @@ export async function streamGuardianChat(
     message: string;
     history: Array<{ role: "user" | "assistant"; content: string }>;
     identity?: AIIdentity;
+    voiceMode?: boolean;
   },
   onChunk: (text: string) => void,
   signal?: AbortSignal,
 ): Promise<void> {
-  const { message, history, identity } = params;
+  const { message, history, identity, voiceMode = false } = params;
 
   if (identity?.provider === "ollama") {
     const { sect, madhhab, subSchool } = identity;
-    const sectDetails = [sect, madhhab, subSchool].filter(Boolean).join(", ");
-    const systemPrompt = `You are a knowledgeable Islamic scholar. Provide general guidance${sectDetails ? ` adhering to ${sectDetails} perspectives` : ""}. Keep responses concise, warm, and avoid fatwas. CRITICAL: Always reply in the exact same language the user writes in — if they write in Urdu, reply fully in Urdu script; if in Arabic, reply in Arabic; if in English, reply in English. Never switch to English unless the user writes in English.`;
-    
+    const sectLine = buildSectLine(sect ?? null, madhhab ?? null, subSchool ?? null);
+
+    const systemPrompt = voiceMode
+      ? `You are Noor AI, a knowledgeable Islamic scholar in a live voice conversation.${sectLine}
+
+Strict voice rules — follow every one:
+- Answer in 1 to 3 short spoken sentences maximum. Never longer.
+- Zero markdown: no asterisks, no bold, no bullet points, no numbered lists, no headers, no dashes.
+- Plain conversational speech only, as if talking directly to the person.
+- Do not start with greetings or "Bismillah" — go straight to the answer.
+- No fatwas or personal religious rulings.
+- Reply in the exact same language the user speaks in. Urdu → Urdu script. Arabic → Arabic. English → English.`
+      : `You are a knowledgeable Islamic scholar.${sectLine} Provide warm, grounded guidance. Keep responses concise and avoid fatwas. CRITICAL: Always reply in the exact same language the user writes in — Urdu → Urdu script, Arabic → Arabic, English → English.`;
+
     const messages = [
       { role: "system", content: systemPrompt },
       ...history,
@@ -292,7 +304,7 @@ export async function streamGuardianChat(
       }),
       signal,
     });
-    
+
     await readOllamaStream(response as unknown as Response, onChunk);
     return;
   }
@@ -301,6 +313,7 @@ export async function streamGuardianChat(
     "/api/quran/chat",
     {
       mode: "guardian",
+      voiceMode,
       message,
       provider: identity?.provider,
       model: identity?.model,
@@ -312,6 +325,16 @@ export async function streamGuardianChat(
     onChunk,
     signal,
   );
+}
+
+function buildSectLine(
+  sect: string | null,
+  madhhab: string | null,
+  subSchool: string | null,
+): string {
+  if (!sect || sect === "general") return "";
+  const parts = [sect, madhhab, subSchool].filter(Boolean);
+  return ` The user follows the ${parts.join(" — ")} tradition. Base answers on this tradition's scholarship and fiqh.`;
 }
 
 // ─── Summary (non-streaming) ──────────────────────────────────────────────────

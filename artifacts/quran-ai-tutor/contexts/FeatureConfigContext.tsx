@@ -7,12 +7,14 @@ export interface FeatureConfig {
   showPrayerTimes: boolean;
   showTeacherSelection: boolean;
   showAnalytics: boolean;
+  simpleMode: boolean;
 }
 
 const DEFAULTS: FeatureConfig = {
   showPrayerTimes: false,
   showTeacherSelection: false,
   showAnalytics: false,
+  simpleMode: false,
 };
 
 interface FeatureConfigContextValue {

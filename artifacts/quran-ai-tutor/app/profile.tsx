@@ -268,6 +268,73 @@ function FeatureToggles({ colors }: { colors: ReturnType<typeof useColors> }) {
   );
 }
 
+function AppModeToggle({ colors }: { colors: ReturnType<typeof useColors> }) {
+  const { config, setFeature } = useFeatureConfig();
+  const isSimple = config.simpleMode;
+
+  const switchMode = (simple: boolean) => {
+    setFeature("simpleMode", simple);
+    Haptics.selectionAsync().catch(() => {});
+    // Navigate immediately so the user lands on the right home
+    if (simple) {
+      router.replace("/simple" as never);
+    } else {
+      router.replace("/mode-select");
+    }
+  };
+
+  return (
+    <View>
+      <Text style={[styles.label, { color: colors.mutedForeground }]}>APP MODE</Text>
+      <View style={[modeStyles.row, { backgroundColor: colors.secondary }]}>
+        <Pressable
+          style={[modeStyles.pill, !isSimple && { backgroundColor: colors.background }]}
+          onPress={() => switchMode(false)}
+        >
+          <Feather name="layers" size={15} color={!isSimple ? colors.primary : colors.mutedForeground} />
+          <Text style={[modeStyles.pillText, { color: !isSimple ? colors.primary : colors.mutedForeground, fontWeight: !isSimple ? "700" : "500" }]}>
+            Advanced
+          </Text>
+        </Pressable>
+        <Pressable
+          style={[modeStyles.pill, isSimple && { backgroundColor: colors.background }]}
+          onPress={() => switchMode(true)}
+        >
+          <Feather name="smartphone" size={15} color={isSimple ? colors.primary : colors.mutedForeground} />
+          <Text style={[modeStyles.pillText, { color: isSimple ? colors.primary : colors.mutedForeground, fontWeight: isSimple ? "700" : "500" }]}>
+            Simple
+          </Text>
+        </Pressable>
+      </View>
+      <Text style={[modeStyles.hint, { color: colors.mutedForeground }]}>
+        {isSimple
+          ? "Clean single-page view — ayah, translation, tafseer, and chat."
+          : "Full-featured app — all tabs, quiz, history, and teacher selection."}
+      </Text>
+    </View>
+  );
+}
+
+const modeStyles = StyleSheet.create({
+  row: {
+    flexDirection: "row",
+    borderRadius: 12,
+    padding: 4,
+    gap: 4,
+  },
+  pill: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  pillText: { fontSize: 14 },
+  hint: { fontSize: 12, marginTop: 8, lineHeight: 17 },
+});
+
 export default function ProfileScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
@@ -383,6 +450,10 @@ export default function ProfileScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+        {/* App Mode */}
+        <AppModeToggle colors={colors} />
+        <View style={[styles.sectionDivider, { borderTopColor: colors.border, marginTop: 20, marginBottom: 20 }]} />
+
         {/* Name */}
         <Text style={[styles.label, { color: colors.mutedForeground }]}>DISPLAY NAME</Text>
         <View style={[styles.inputWrap, { backgroundColor: colors.card, borderColor: colors.border }]}>
