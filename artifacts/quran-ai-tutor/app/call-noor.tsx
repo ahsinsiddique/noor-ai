@@ -74,7 +74,12 @@ function TranscriptModal({
       <Pressable style={modalStyles.overlay} onPress={onClose}>
         <Pressable style={modalStyles.sheet} onPress={() => {}}>
           <Text style={modalStyles.label}>{label}</Text>
-          <ScrollView style={modalStyles.scroll} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={modalStyles.scroll}
+            contentContainerStyle={{ paddingBottom: 4 }}
+            showsVerticalScrollIndicator
+            bounces
+          >
             <Text style={modalStyles.body} selectable>{text}</Text>
           </ScrollView>
           <Pressable style={modalStyles.closeBtn} onPress={onClose}>
@@ -98,6 +103,7 @@ const modalStyles = StyleSheet.create({
     borderTopRightRadius: 20,
     padding: 24,
     maxHeight: "75%",
+    flexShrink: 1,
   },
   label: {
     fontSize: 11,
@@ -107,7 +113,7 @@ const modalStyles = StyleSheet.create({
     color: "#888",
     marginBottom: 12,
   },
-  scroll: { marginBottom: 16 },
+  scroll: { flex: 1, marginBottom: 16 },
   body: { fontSize: 16, fontWeight: "400", lineHeight: 26, color: "#111" },
   closeBtn: {
     alignSelf: "center",
