@@ -26,7 +26,7 @@ import { useMadhhab } from "@/contexts/MadhhabContext";
 import { useModel } from "@/contexts/ModelContext";
 import { useSect } from "@/contexts/SectContext";
 import { useColors } from "@/hooks/useColors";
-import { apiUrl } from "@/services/apiClient";
+import { getWhisperUrl } from "@/services/apiClient";
 import { getAccessToken } from "@/lib/supabase";
 import { detectTtsLanguage, streamGuardianChat } from "@/services/aiService";
 
@@ -190,8 +190,10 @@ export default function CallNoorScreen() {
         const msg = e instanceof Error ? e.message : String(e);
         if (msg.toLowerCase().includes("permission") || msg.includes("NotAllowed")) {
           setError("Microphone permission denied");
+          Alert.alert("Permission Denied", "Microphone permission is required to use this feature.");
         } else {
           setError("Could not access microphone");
+          Alert.alert("Error", "Could not access microphone.");
         }
         setState("idle");
       }
@@ -214,6 +216,7 @@ export default function CallNoorScreen() {
       const msg = e instanceof Error ? e.message : String(e);
       setError(`Could not start recording: ${msg}`);
       setState("idle");
+      Alert.alert("Recording Error", msg);
     }
   }, [audioRecorder]);
 
@@ -245,14 +248,14 @@ export default function CallNoorScreen() {
         webStreamRef.current = null;
         const blob = new Blob(webChunksRef.current, { type: "audio/webm" });
         formData = new FormData();
-        formData.append("audio", blob, "call.webm");
+        formData.append("file", blob, "call.webm");
       } else {
         await audioRecorder.stop();
         await new Promise<void>((r) => setTimeout(r, 80));
         const uri = audioRecorder.uri;
         if (!uri) throw new Error("Recording failed — no file saved");
         formData = new FormData();
-        formData.append("audio", {
+        formData.append("file", {
           uri,
           type: "audio/m4a",
           name: "call.m4a",
@@ -262,20 +265,29 @@ export default function CallNoorScreen() {
       const msg = e instanceof Error ? e.message : String(e);
       setError(msg);
       setState("idle");
+      Alert.alert("Error", msg);
       return;
     }
 
     // ─── 2. Transcribe ────────────────────────────────────────────────────────
     let transcript = "";
     try {
-      const res = await fetch(apiUrl("/api/quran/transcribe"), {
+      const whisperUrl = getWhisperUrl();
+      const res = await fetch(whisperUrl, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-      if (!res.ok) throw new Error(`Transcribe ${res.status}`);
-      const data = (await res.json()) as { text?: string };
-      transcript = (data.text ?? "").trim();
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => "");
+        throw new Error(`Transcribe ${res.status}: ${errorText}`);
+      }
+      const data = await res.json();
+      
+      if (typeof data === "string") {
+        transcript = data.trim();
+      } else {
+        transcript = (data.text || data.transcription || "").trim();
+      }
       if (!transcript) {
         setError("Didn't catch that — try again");
         setState("idle");
@@ -284,7 +296,10 @@ export default function CallNoorScreen() {
       setLastUserSaid(transcript);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      setError(`Transcription failed: ${msg}`);
+      const isNetwork = msg.toLowerCase().includes("fetch") || msg.toLowerCase().includes("network") || msg.toLowerCase().includes("failed to");
+      const display = isNetwork ? `Whisper server unreachable (${getWhisperUrl()})` : `Transcription failed: ${msg}`;
+      setError(display);
+      Alert.alert("Transcription Error", display);
       setState("idle");
       return;
     }
@@ -326,17 +341,18 @@ export default function CallNoorScreen() {
       return;
     }
 
-    // Remember this turn
-    historyRef.current = [
-      ...historyRef.current,
-      { role: "user", content: transcript },
-      { role: "assistant", content: aiText },
-    ].slice(-20); // keep last 10 turns
-
     if (!aiText.trim()) {
+      setError("No response from AI — is Ollama running?");
       setState("idle");
       return;
     }
+
+    // Remember this turn (20 messages = 10 turns)
+    historyRef.current = [
+      ...historyRef.current,
+      { role: "user" as const, content: transcript },
+      { role: "assistant" as const, content: aiText },
+    ].slice(-20);
 
     // ─── 4. Speak the reply ───────────────────────────────────────────────────
     setState("speaking");
@@ -482,11 +498,6 @@ export default function CallNoorScreen() {
         <Text style={[styles.statusLabel, { color: colors.mutedForeground }]}>
           {statusLabel}
         </Text>
-        {!!error && (
-          <Text style={[styles.errorText, { color: colors.destructive ?? "#ef4444" }]}>
-            {error}
-          </Text>
-        )}
       </View>
 
       {/* Mic pill — the tap target for start/stop talking + barge-in */}
@@ -515,6 +526,14 @@ export default function CallNoorScreen() {
           </Text>
         </Pressable>
       </View>
+
+      {/* Error banner — always visible below mic pill */}
+      {!!error && (
+        <View style={styles.errorBanner}>
+          <Feather name="alert-circle" size={13} color="#ef4444" />
+          <Text style={styles.errorBannerText} numberOfLines={3}>{error}</Text>
+        </View>
+      )}
 
       {/* Transcript preview */}
       <View style={styles.transcript}>
@@ -590,7 +609,6 @@ const styles = StyleSheet.create({
 
   avatarArea: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24 },
   statusLabel: { marginTop: 22, fontSize: 14, fontWeight: "500", textAlign: "center" },
-  errorText: { marginTop: 10, fontSize: 12, fontWeight: "500", textAlign: "center" },
 
   micArea: { alignItems: "center", paddingHorizontal: 24, paddingTop: 4, paddingBottom: 4 },
   micPill: {
@@ -607,6 +625,18 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   micPillText: { color: "#fff", fontSize: 15, fontWeight: "700" },
+
+  errorBanner: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 6,
+    marginHorizontal: 24,
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: "rgba(239,68,68,0.12)",
+  },
+  errorBannerText: { flex: 1, fontSize: 12, fontWeight: "500", color: "#ef4444", lineHeight: 17 },
 
   transcript: {
     paddingHorizontal: 26,

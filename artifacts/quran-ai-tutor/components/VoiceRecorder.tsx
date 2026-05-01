@@ -13,7 +13,7 @@ import {
 } from "react-native";
 
 import { useColors } from "@/hooks/useColors";
-import { apiUrl } from "@/services/apiClient";
+import { apiUrl, getWhisperUrl } from "@/services/apiClient";
 import { getAccessToken } from "@/lib/supabase";
 
 interface Props {
@@ -61,15 +61,14 @@ export function VoiceRecorder({ onTranscript, onBeforeRecord, disabled }: Props)
 
   // ─── Shared transcription helper ──────────────────────────────────────────
   const sendToTranscribe = useCallback(async (blob: Blob, filename: string, mimeType: string) => {
-    const token = await getAccessToken();
-    if (!token) throw new Error("Not signed in");
-
+    // We send directly to the local Whisper API, bypassing Next.js backend
     const formData = new FormData();
-    formData.append("audio", blob as unknown as Blob, filename);
+    // FastAPI whisper server expects a field named "file"
+    formData.append("file", blob as unknown as Blob, filename);
 
-    const res = await fetch(apiUrl("/api/quran/transcribe"), {
+    const whisperUrl = getWhisperUrl();
+    const res = await fetch(whisperUrl, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
       body: formData,
     });
 
@@ -78,9 +77,13 @@ export function VoiceRecorder({ onTranscript, onBeforeRecord, disabled }: Props)
       throw new Error(`Server error ${res.status}: ${body}`);
     }
 
-    const data = (await res.json()) as { text?: string; error?: string };
-    if (data.text?.trim()) {
-      onTranscript(data.text.trim());
+    const data = await res.json();
+    const text = (typeof data === "string"
+      ? data
+      : data.text || data.transcription || ""
+    ).trim();
+    if (text) {
+      onTranscript(text);
     } else {
       setError("Couldn't hear clearly — please try again");
     }

@@ -75,6 +75,14 @@ export function getOllamaUrl(path: string): string {
   return finalUrl;
 }
 
+export function getWhisperUrl(): string {
+  if (process.env.EXPO_PUBLIC_WHISPER_URL) {
+    const base = process.env.EXPO_PUBLIC_WHISPER_URL.replace(/\/+$/, "");
+    return `${base}/transcribe`;
+  }
+  return "http://192.168.110.80:8000/transcribe";
+}
+
 export async function apiFetch(
   path: string,
   init: RequestInit = {},

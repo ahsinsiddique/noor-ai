@@ -31,14 +31,40 @@ export async function POST(req: Request) {
   }
 
   try {
-    const openai = transcriptionClient();
-    const model = process.env.WHISPER_MODEL ?? "whisper-1";
-    const transcription = await openai.audio.transcriptions.create({
-      file: file as File,
-      model,
-      response_format: "json",
-    });
-    return Response.json({ text: transcription.text ?? "" });
+    const whisperBase = process.env.WHISPER_BASE_URL;
+    let text = "";
+
+    if (whisperBase) {
+      // Local whisper instance (custom FastAPI or similar) that expects `/transcribe` and `file` field
+      const whisperUrl = `${whisperBase.replace(/\/+$/, "")}/transcribe`;
+      const uploadForm = new FormData();
+      uploadForm.append("file", file as Blob, "audio.webm");
+
+      const response = await fetch(whisperUrl, {
+        method: "POST",
+        body: uploadForm,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        throw new Error(`Whisper server error: ${response.status} ${errorText}`);
+      }
+
+      const data = await response.json();
+      text = data.text || data.transcription || (typeof data === "string" ? data : JSON.stringify(data));
+    } else {
+      // Fallback to standard OpenAI transcription client if no custom whisper server is provided
+      const openai = transcriptionClient();
+      const model = process.env.WHISPER_MODEL ?? "whisper-1";
+      const transcription = await openai.audio.transcriptions.create({
+        file: file as File,
+        model,
+        response_format: "json",
+      });
+      text = transcription.text ?? "";
+    }
+
+    return Response.json({ text });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return Response.json({ error: "Transcription failed", detail: message }, { status: 500 });
