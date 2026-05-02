@@ -9,10 +9,11 @@ export default function IndexRedirect() {
 
   if (isLoading) return null;
 
-  if (isAuthenticated) {
-    if (config.simpleMode) return <Redirect href={"/simple" as never} />;
-    return <Redirect href="/mode-select" />;
-  }
+  // Guests always land on simple mode — no auth required
+  if (!isAuthenticated) return <Redirect href={"/simple" as never} />;
 
-  return <Redirect href="/(auth)/login" />;
+  // Authenticated users: respect their mode preference
+  // Default (simpleMode: false) → advanced mode
+  if (config.simpleMode) return <Redirect href={"/simple" as never} />;
+  return <Redirect href="/mode-select" />;
 }

@@ -338,14 +338,7 @@ const modeStyles = StyleSheet.create({
 export default function ProfileScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { user, isAuthenticated, updateProfile, logout } = useAuth();
-
-  // Guard: redirect unauthenticated access
-  useEffect(() => {
-    if (!isAuthenticated && !user) {
-      router.replace("/(auth)/login");
-    }
-  }, [isAuthenticated, user]);
+  const { user, isAuthenticated, isLoading, updateProfile, logout } = useAuth();
 
   const [name, setName] = useState(user?.name ?? "");
   const [level, setLevel] = useState<LearningLevel>((user?.level as LearningLevel) ?? "Beginner");
@@ -431,6 +424,8 @@ export default function ProfileScreen() {
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const botPad = insets.bottom + (Platform.OS === "web" ? 34 : 20);
 
+  if (isLoading) return null;
+
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
       {/* Header */}
@@ -439,8 +434,10 @@ export default function ProfileScreen() {
           <Feather name="arrow-left" size={20} color="#fff" />
         </Pressable>
         <View style={{ flex: 1, marginLeft: 12 }}>
-          <Text style={styles.headerTitle}>Your Profile</Text>
-          <Text style={styles.headerSub}>{user?.email}</Text>
+          <Text style={styles.headerTitle}>{isAuthenticated ? "Your Profile" : "Settings"}</Text>
+          {isAuthenticated && user?.email ? (
+            <Text style={styles.headerSub}>{user.email}</Text>
+          ) : null}
         </View>
       </View>
 
@@ -454,67 +451,107 @@ export default function ProfileScreen() {
         <AppModeToggle colors={colors} />
         <View style={[styles.sectionDivider, { borderTopColor: colors.border, marginTop: 20, marginBottom: 20 }]} />
 
-        {/* Name */}
-        <Text style={[styles.label, { color: colors.mutedForeground }]}>DISPLAY NAME</Text>
-        <View style={[styles.inputWrap, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Feather name="user" size={16} color={colors.mutedForeground} style={styles.inputIcon} />
-          <TextInput
-            style={[styles.input, { color: colors.foreground }]}
-            value={name}
-            onChangeText={(t) => { setName(t); setError(""); }}
-            placeholder="Your name"
-            placeholderTextColor={colors.mutedForeground}
-            returnKeyType="done"
-          />
-        </View>
-
-        {/* Level */}
-        <Text style={[styles.label, { color: colors.mutedForeground, marginTop: 18 }]}>LEARNING LEVEL</Text>
-        {LEVELS.map((l) => {
-          const info = LEVEL_INFO[l];
-          const active = level === l;
-          return (
-            <Pressable
-              key={l}
-              onPress={() => { setLevel(l); Haptics.selectionAsync(); }}
-              style={({ pressed }) => [
-                styles.levelCard,
-                {
-                  backgroundColor: active ? colors.primary : colors.card,
-                  borderColor: active ? colors.primary : colors.border,
-                  opacity: pressed ? 0.88 : 1,
-                },
-              ]}
-            >
-              <View style={[styles.levelIcon, { backgroundColor: active ? "rgba(255,255,255,0.18)" : colors.secondary }]}>
-                <Feather name={info.icon} size={18} color={active ? "#fff" : colors.accent} />
+        {/* Guest sign-in banner */}
+        {!isAuthenticated && (
+          <>
+            <View style={[styles.guestBanner, { backgroundColor: colors.secondary, borderColor: colors.border }]}>
+              <Feather name="user" size={20} color={colors.primary} />
+              <View style={{ flex: 1, marginLeft: 12 }}>
+                <Text style={[styles.guestTitle, { color: colors.foreground }]}>Sign in to personalise</Text>
+                <Text style={[styles.guestSub, { color: colors.mutedForeground }]}>
+                  Save your name, learning level, and preferences across devices.
+                </Text>
               </View>
-              <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                  <Text style={[styles.levelName, { color: active ? "#fff" : colors.foreground }]}>{l}</Text>
-                  <Text style={[styles.levelArabic, { color: active ? "rgba(255,255,255,0.8)" : colors.accent }]}>{info.arabic}</Text>
-                </View>
-              </View>
-              {active && <Feather name="check-circle" size={16} color="rgba(255,255,255,0.9)" />}
-            </Pressable>
-          );
-        })}
-
-        {!!error && (
-          <View style={[styles.errorBox, { backgroundColor: colors.destructive + "18", borderColor: colors.destructive }]}>
-            <Feather name="alert-circle" size={13} color={colors.destructive} />
-            <Text style={[styles.errorText, { color: colors.destructive }]}>{error}</Text>
-          </View>
-        )}
-        {savedFlash && !error && (
-          <View style={styles.savedRow}>
-            <Feather name="check-circle" size={12} color={colors.primary} />
-            <Text style={[styles.savedText, { color: colors.primary }]}>Saved</Text>
-          </View>
+            </View>
+            <View style={styles.guestBtns}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.guestBtn,
+                  { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
+                ]}
+                onPress={() => router.push("/(auth)/login")}
+              >
+                <Text style={styles.guestBtnText}>Sign In</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.guestBtn,
+                  { backgroundColor: colors.card, borderWidth: 1.5, borderColor: colors.border, opacity: pressed ? 0.85 : 1 },
+                ]}
+                onPress={() => router.push("/(auth)/signup")}
+              >
+                <Text style={[styles.guestBtnText, { color: colors.foreground }]}>Create Account</Text>
+              </Pressable>
+            </View>
+            <View style={[styles.sectionDivider, { borderTopColor: colors.border, marginTop: 20, marginBottom: 20 }]} />
+          </>
         )}
 
-        {/* Divider */}
-        <View style={[styles.sectionDivider, { borderTopColor: colors.border }]} />
+        {/* Name — auth only */}
+        {isAuthenticated && (
+          <>
+            <Text style={[styles.label, { color: colors.mutedForeground }]}>DISPLAY NAME</Text>
+            <View style={[styles.inputWrap, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <Feather name="user" size={16} color={colors.mutedForeground} style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, { color: colors.foreground }]}
+                value={name}
+                onChangeText={(t) => { setName(t); setError(""); }}
+                placeholder="Your name"
+                placeholderTextColor={colors.mutedForeground}
+                returnKeyType="done"
+              />
+            </View>
+
+            {/* Level — auth only */}
+            <Text style={[styles.label, { color: colors.mutedForeground, marginTop: 18 }]}>LEARNING LEVEL</Text>
+            {LEVELS.map((l) => {
+              const info = LEVEL_INFO[l];
+              const active = level === l;
+              return (
+                <Pressable
+                  key={l}
+                  onPress={() => { setLevel(l); Haptics.selectionAsync(); }}
+                  style={({ pressed }) => [
+                    styles.levelCard,
+                    {
+                      backgroundColor: active ? colors.primary : colors.card,
+                      borderColor: active ? colors.primary : colors.border,
+                      opacity: pressed ? 0.88 : 1,
+                    },
+                  ]}
+                >
+                  <View style={[styles.levelIcon, { backgroundColor: active ? "rgba(255,255,255,0.18)" : colors.secondary }]}>
+                    <Feather name={info.icon} size={18} color={active ? "#fff" : colors.accent} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                      <Text style={[styles.levelName, { color: active ? "#fff" : colors.foreground }]}>{l}</Text>
+                      <Text style={[styles.levelArabic, { color: active ? "rgba(255,255,255,0.8)" : colors.accent }]}>{info.arabic}</Text>
+                    </View>
+                  </View>
+                  {active && <Feather name="check-circle" size={16} color="rgba(255,255,255,0.9)" />}
+                </Pressable>
+              );
+            })}
+
+            {!!error && (
+              <View style={[styles.errorBox, { backgroundColor: colors.destructive + "18", borderColor: colors.destructive }]}>
+                <Feather name="alert-circle" size={13} color={colors.destructive} />
+                <Text style={[styles.errorText, { color: colors.destructive }]}>{error}</Text>
+              </View>
+            )}
+            {savedFlash && !error && (
+              <View style={styles.savedRow}>
+                <Feather name="check-circle" size={12} color={colors.primary} />
+                <Text style={[styles.savedText, { color: colors.primary }]}>Saved</Text>
+              </View>
+            )}
+
+            {/* Divider */}
+            <View style={[styles.sectionDivider, { borderTopColor: colors.border }]} />
+          </>
+        )}
 
         {/* AI Model */}
         <Text style={[styles.label, { color: colors.mutedForeground }]}>AI MODEL</Text>
@@ -553,17 +590,19 @@ export default function ProfileScreen() {
         {/* Divider */}
         <View style={[styles.sectionDivider, { borderTopColor: colors.border }]} />
 
-        {/* Sign out */}
-        <Pressable
-          style={({ pressed }) => [
-            styles.logoutBtn,
-            { backgroundColor: colors.card, borderColor: colors.destructive + "60", opacity: pressed ? 0.85 : 1 },
-          ]}
-          onPress={handleLogout}
-        >
-          <Feather name="log-out" size={16} color={colors.destructive} />
-          <Text style={[styles.logoutText, { color: colors.destructive }]}>Sign Out</Text>
-        </Pressable>
+        {/* Sign out — auth only */}
+        {isAuthenticated && (
+          <Pressable
+            style={({ pressed }) => [
+              styles.logoutBtn,
+              { backgroundColor: colors.card, borderColor: colors.destructive + "60", opacity: pressed ? 0.85 : 1 },
+            ]}
+            onPress={handleLogout}
+          >
+            <Feather name="log-out" size={16} color={colors.destructive} />
+            <Text style={[styles.logoutText, { color: colors.destructive }]}>Sign Out</Text>
+          </Pressable>
+        )}
       </ScrollView>
     </View>
   );
@@ -666,6 +705,24 @@ const styles = StyleSheet.create({
   toggleLabel: { fontSize: 14, fontWeight: "600", marginBottom: 1 },
   toggleDesc: { fontSize: 12, fontWeight: "400" },
   helperText: { fontSize: 12, lineHeight: 17, marginTop: -2, marginBottom: 12 },
+  guestBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 14,
+  },
+  guestTitle: { fontSize: 15, fontWeight: "700", marginBottom: 3 },
+  guestSub: { fontSize: 12, lineHeight: 17 },
+  guestBtns: { flexDirection: "row", gap: 10 },
+  guestBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  guestBtnText: { fontSize: 14, fontWeight: "700", color: "#fff" },
   madhhabGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
